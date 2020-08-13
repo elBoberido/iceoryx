@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/mepoo/default_chunk_header_extension.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -133,14 +134,11 @@ mepoo::ChunkHeader* SenderPort::reserveChunk(const uint32_t payloadSize, bool us
     // if it is no field and we have a last chunk which is only owned by us, then use this chunk again
     if (!getMembers()->m_receiverHandler.doesDeliverOnSubscribe() && getMembers()->m_lastChunk
         && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk
-               >= getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize))
+        && getMembers()->m_lastChunk.getChunkHeader()->m_info.m_payloadSize >= payloadSize) // TODO use ChunkHeaderExtension::maxChunkSizeForPayload
     {
         if (pushToAllocatedChunkContainer(getMembers()->m_lastChunk))
         {
             getMembers()->m_lastChunk.getChunkHeader()->m_info.m_payloadSize = payloadSize;
-            getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk =
-                getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
             return getMembers()->m_lastChunk.getChunkHeader();
         }
         else

@@ -40,13 +40,20 @@ struct ChunkInfo
     /// @brief size of the user data object
     std::uint32_t m_payloadSize{0};
 
+    std::uint32_t m_payloadOffset{32}; // TODO sizeof(ChunkHeader)
+
     /// @brief size of header and used payload (remaining bytes of the memory chunk are not counted)
-    std::uint32_t m_usedSizeOfChunk{0};
+//     std::uint32_t m_usedSizeOfChunk{0};
 
     /// @brief total size of the chunk, independent of the usage
     std::uint32_t m_totalSizeOfChunk{0};
 
     TimePointNs m_txTimestamp;
+
+//     std::uint32_t m_chunkSize{0};
+//     std::uint32_t m_payloadSize{0};
+//     std::uint32_t m_payloadOffset{0};
+//     std::uint64_t m_sequenceNumber{0};
 };
 
 } // namespace mepoo

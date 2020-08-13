@@ -45,12 +45,12 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const 
     const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
 
     if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && (getMembers()->m_lastChunk.getChunkHeader()->m_info.m_totalSizeOfChunk >= neededChunkSize))
+        && (getMembers()->m_lastChunk.getChunkHeader()->m_info.m_payloadSize >= payloadSize)) // TODO use ChunkHeaderExtension::maxChunkSizeForPayload
     {
         if (getMembers()->m_chunksInUse.insert(getMembers()->m_lastChunk))
         {
             getMembers()->m_lastChunk.getChunkHeader()->m_info.m_payloadSize = payloadSize;
-            getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk = neededChunkSize;
+            // getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk = neededChunkSize;
             return cxx::success<mepoo::ChunkHeader*>(getMembers()->m_lastChunk.getChunkHeader());
         }
         else

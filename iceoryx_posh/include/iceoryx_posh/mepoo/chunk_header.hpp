@@ -18,8 +18,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_info.hpp"
 
-#include <atomic>
-#include <chrono>
 #include <cstdint>
 
 namespace iox
@@ -36,15 +34,57 @@ struct alignas(32) ChunkHeader
     UniquePortId m_originId{popo::CreateInvalidId};
     ChunkInfo m_info;
 
+    /* proposal for new ChunkHeader
+
+     chunk framing:
+
+       sizeof(ChunkHeader)                             m_payloadSize
+     __________/\__________                     _____________/\______________
+    /                      \                   /                             \
+    +-----------------------+-----------------+------------------------------+---------------+
+    |                       |   Custom    .   |                              |               |
+    |      ChunkHeader      | ChunkHeader .   |           Payload            |    Padding    |
+    |                       |  Extension  .   |                              |               |
+    +-----------------------+-----------------+------------------------------+---------------+
+    \___________________  ____________________/                                              /
+    \                   \/                                                                  /
+     \            m_payloadOffset                                                          /
+      \                                                                                   /
+       \_______________________________________  ________________________________________/
+                                               \/
+                                           m_chunkSize
+
+    std::uint64_t m_originId{0};
+    std::uint64_t m_sequenceNumber{0};
+    std::uint32_t m_chunkSize{0};
+    std::uint32_t m_payloadSize{0};
+    std::uint32_t m_padding{0}; <- just a padding to make "address of m_payloadOffset" == "payloadPointer - sizeof(uint32_t)"; this is an optimization for a custom chunk header extension of size 0
+    std::uint32_t m_payloadOffset{0};
+
+    // TODO: with the approach that the payload alignment can be bigger than the ChunkHeader alignment,
+    // we need to additionally store the payload offset in an uint32_t just in front of the payload.
+    // This is necessary since we provide an API where the gets only the pointer for the payload from an allocate call.
+    // To be able to calculate the pointer to the ChunkHeader, we need to store the payload offset in a known location,
+    // which would be at (payloadPointer - sizeof(uint32_t)). This also means the minimal alignment of the payload must be alignof(uint32_t).
+    // This has also to be considered in the maxChunkSizeForPayload calculation
+    */
+
     void* payload() const
     {
         // payload is always located relative to "this" in this way
-        return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
+        return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + m_info.m_payloadOffset);
     }
 
     /// @todo this is a temporary dummy variable to keep the size of the ChunkHeader at 64 byte for compatibility
     /// reasons
     void* m_payloadDummy{nullptr};
+
+    template <typename ChunkHeaderExtension>
+    ChunkHeaderExtension* chunkHeaderExtension()
+    {
+        // the ChunkHeaderExtension is always located relative to "this" in this way
+        return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
+    }
 };
 
 ChunkHeader* convertPayloadPointerToChunkHeader(const void* const payload) noexcept;
