@@ -142,18 +142,19 @@ add_library(iceoryx_utils
     source/log/logmanager.cpp
     source/log/logstream.cpp
     source/posix_wrapper/access_control.cpp
-    source/posix_wrapper/mutex.cpp
-    source/posix_wrapper/semaphore.cpp
-    source/posix_wrapper/timer.cpp
-    source/posix_wrapper/timespec.cpp
-    source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/message_queue.cpp
-    source/posix_wrapper/unix_domain_socket.cpp
+    source/posix_wrapper/mutex.cpp
+    source/posix_wrapper/posix_access_rights.cpp
+    source/posix_wrapper/semaphore.cpp
+    source/posix_wrapper/single_instance_lock.cpp
+    source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp
     source/posix_wrapper/shared_memory_object/memory_map.cpp
     source/posix_wrapper/shared_memory_object/shared_memory.cpp
     source/posix_wrapper/system_configuration.cpp
-    source/posix_wrapper/posix_access_rights.cpp
+    source/posix_wrapper/timer.cpp
+    source/posix_wrapper/timespec.cpp
+    source/posix_wrapper/unix_domain_socket.cpp
     source/units/duration.cpp
     source/relocatable_pointer/relative_ptr.cpp
 )
@@ -168,7 +169,7 @@ set_target_properties(iceoryx_utils PROPERTIES
 
 if(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
-    target_link_libraries(iceoryx_utils PRIVATE rt acl atomic ${CODE_COVERAGE_LIBS})
+    target_link_libraries(iceoryx_utils PRIVATE pthread rt acl atomic ${CODE_COVERAGE_LIBS})
 elseif(QNX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
 elseif(APPLE)

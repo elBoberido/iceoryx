@@ -45,7 +45,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr size_t LONGEST_VALID_NAME = 1024u;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
-    static constexpr char PATH_PREFIX[] = "/tmp/";
+    static constexpr const char* PATH_PREFIX = "/tmp/";
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
