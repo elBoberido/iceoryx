@@ -15,6 +15,105 @@
 #include "iceoryx_utils/cxx/serialization.hpp"
 #include "test.hpp"
 
+namespace
+{
+class Dummy
+{
+  public:
+    Dummy() = default;
+
+    class Nested
+    {
+      public:
+        Nested() = default;
+        Nested(std::string str)
+            : m_str(str)
+        {
+        }
+
+        Nested(iox::cxx::Serialization&);
+        operator iox::cxx::Serialization() const;
+
+        friend std::ostream& operator<<(std::ostream&, const Dummy::Nested&);
+
+      private:
+        std::string m_str;
+    };
+
+    Dummy(uint16_t u16, uint32_t u32, std::string str)
+        : m_u16(u16)
+        , m_u32(u32)
+        , m_nes(str)
+    {
+    }
+
+    Dummy(iox::cxx::Serialization&);
+    operator iox::cxx::Serialization() const;
+
+    friend std::ostream& operator<<(std::ostream&, const Dummy&);
+
+  private:
+    uint16_t m_u16{0};
+    uint32_t m_u32{0};
+    Nested m_nes;
+};
+
+std::ostream& operator<<(std::ostream& o, const Dummy& d)
+{
+    auto flags = o.flags();
+    o << "Dummy {" << std::endl;
+    o << "    m_u16 = 0x" << std::hex << d.m_u16 << std::endl;
+    o << "    m_u32 = 0x" << std::hex << d.m_u32 << std::endl;
+    o << "    m_nes = " << d.m_nes;
+    o << "}" << std::endl;
+    o.setf(flags);
+    return o;
+}
+
+std::ostream& operator<<(std::ostream& o, const Dummy::Nested& d)
+{
+    auto flags = o.flags();
+    o << "Dummy::Nested {" << std::endl;
+    o << "    m_str = '" << d.m_str << "'" << std::endl;
+    o << "}" << std::endl;
+    o.setf(flags);
+    return o;
+}
+
+Dummy::operator iox::cxx::Serialization() const
+{
+    return iox::cxx::Serialization::create(m_u16, m_u32, static_cast<iox::cxx::Serialization>(m_nes));
+}
+
+Dummy::Nested::operator iox::cxx::Serialization() const
+{
+    return iox::cxx::Serialization::create(m_str);
+}
+
+Dummy::Dummy(iox::cxx::Serialization& serial)
+{
+    std::string nested;
+    auto success = serial.extract(m_u16, m_u32, nested);
+    auto ser = iox::cxx::Serialization(nested);
+    auto nes = Nested(ser);
+    // this doesn't work
+    // auto nes = Nested(iox::cxx::Serialization(nested));
+    m_nes = nes;
+    if (!success)
+    {
+        std::cout << "deserialization of Dummy failed" << std::endl;
+    }
+}
+
+Dummy::Nested::Nested(iox::cxx::Serialization& serial)
+{
+    auto success = serial.extract(m_str);
+    if (!success)
+    {
+        std::cout << "deserialization of Dummy::Nested failed" << std::endl;
+    }
+}
+} // namespace
 
 using namespace ::testing;
 
@@ -23,17 +122,28 @@ class Serialization_test : public Test
   public:
     void SetUp()
     {
-        internal::CaptureStderr();
+        //         internal::CaptureStderr();
     }
     virtual void TearDown()
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
+        //         std::string output = internal::GetCapturedStderr();
+        //         if (Test::HasFailure())
+        //         {
+        //             std::cout << output << std::endl;
+        //         }
     }
 };
+
+TEST_F(Serialization_test, Dummy)
+{
+    Dummy dummy(42, 73, "Plumbus");
+    std::cout << dummy << std::endl;
+    auto serial = static_cast<iox::cxx::Serialization>(dummy);
+    std::cout << serial.toString() << std::endl;
+
+    Dummy dummy2(serial);
+    std::cout << dummy2 << std::endl;
+}
 
 TEST_F(Serialization_test, CreateSingleEntry)
 {
