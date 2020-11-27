@@ -28,6 +28,8 @@ namespace mepoo
 template <uint64_t PAYLOAD_ALIGNMENT = 32>
 struct DefaultHeaderExtension {
 
+    // TODO, this should be a specialization of `template <typename T> uint64_t payloadOffset(...)`
+
 
     uint64_t payloadOffset(const ChunkHeader* chunkHeader, const uint64_t payloadSize) const
     {
@@ -96,9 +98,13 @@ struct TimestampChunkHeaderExtension
 // TODO SenderPort/Publisher needs a ctor with either function ref or a reference to a CustomHeaderFilling
 // might be problematic for C-API
 
+// TODO: CustomHeaderFilling might be better a ChunkHeaderHook with a default implementation for deliverHook where the sequence number is set; is this a good idea? should the user be able to override the sequence number
 class CustomHeaderFilling {
     virtual void allocateHook(void* headerExtension) = 0;
     virtual void deliverHook(void* headerExtension) = 0;
+
+    // maybe better
+    virtual void allocateHook(ChunkHeader* chunkHeader) = 0;
 };
 class TimestampHeaderFilling : public CustomHeaderFilling {
     void allocateHook(void* headerExtension) override {
@@ -108,6 +114,11 @@ class TimestampHeaderFilling : public CustomHeaderFilling {
 
     void deliverHook(void* headerExtension) override
     {}
+
+    void allocateHook(ChunkHeader* chunkHeader) override {
+        auto header = chunkHeader->chunkHeaderExtension<TimestampChunkHeaderExtension>();
+        header->m_timestamp = m_synteticTime++;
+    }
 
     uint64_t m_synteticTime {0u};
 };
