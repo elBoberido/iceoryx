@@ -40,7 +40,7 @@ struct ChunkSenderData : public ChunkDistributorDataType
     mepoo::MemoryInfo m_memoryInfo;
     UsedChunkList<MaxChunksAllocatedSimultaneously> m_chunksInUse;
     mepoo::SequenceNumberType m_sequenceNumber{0u};
-    mepoo::SharedChunk m_lastChunk{nullptr};
+    relative_ptr<mepoo::ChunkManagement> m_lastChunkMgmt;
 };
 
 } // namespace popo

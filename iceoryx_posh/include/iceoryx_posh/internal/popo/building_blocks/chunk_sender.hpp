@@ -54,7 +54,9 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     ChunkSender& operator=(const ChunkSender&) = delete;
     ChunkSender(ChunkSender&& rhs) = default;
     ChunkSender& operator=(ChunkSender&& rhs) = default;
-    ~ChunkSender() = default;
+    ~ChunkSender() {
+        m_lastChunk.release();
+    }
 
     /// @brief allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
     /// the user process disappears
@@ -95,6 +97,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
 
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
+    mepoo::SharedChunk m_lastChunk;//{getMembers()->m_lastChunkMgmt};
 };
 
 } // namespace popo

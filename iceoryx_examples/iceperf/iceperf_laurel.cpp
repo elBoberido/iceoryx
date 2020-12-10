@@ -81,15 +81,15 @@ int main(int argc, char* argv[])
         }
     }
 
-#ifndef __APPLE__
-    std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-    leaderDo(mq, numRoundtrips);
-#endif
-
-    std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-    leaderDo(uds, numRoundtrips);
+// #ifndef __APPLE__
+//     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+//     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+//     leaderDo(mq, numRoundtrips);
+// #endif
+//
+//     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+//     UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+//     leaderDo(uds, numRoundtrips);
 
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
     iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon

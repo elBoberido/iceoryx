@@ -20,11 +20,12 @@ namespace mepoo
 {
 SharedChunk::SharedChunk(ChunkManagement* const f_resource)
     : m_chunkManagement(f_resource)
+    //, m_chunkHeader(m_chunkManagement == nullptr ? nullptr : m_chunkManagement->m_chunkHeader)
 {
 }
 
 SharedChunk::SharedChunk(const relative_ptr<ChunkManagement>& f_resource)
-    : m_chunkManagement(f_resource)
+    : SharedChunk(f_resource.get())
 {
 }
 
@@ -64,6 +65,8 @@ void SharedChunk::freeChunk()
 {
     m_chunkManagement->m_mempool->freeChunk(m_chunkManagement->m_chunkHeader);
     m_chunkManagement->m_chunkManagementPool->freeChunk(m_chunkManagement);
+    m_chunkManagement = nullptr;
+//     m_chunkHeader = nullptr;
 }
 
 SharedChunk& SharedChunk::operator=(const SharedChunk& rhs)
@@ -72,6 +75,7 @@ SharedChunk& SharedChunk::operator=(const SharedChunk& rhs)
     {
         decrementReferenceCounter();
         m_chunkManagement = rhs.m_chunkManagement;
+//         m_chunkHeader = rhs.m_chunkHeader;
         incrementReferenceCounter();
     }
     return *this;
@@ -82,21 +86,24 @@ SharedChunk& SharedChunk::operator=(SharedChunk&& rhs)
     if (this != &rhs)
     {
         decrementReferenceCounter();
-        m_chunkManagement = std::move(rhs.m_chunkManagement);
+        m_chunkManagement = rhs.m_chunkManagement;
+//         m_chunkHeader = rhs.m_chunkHeader;
         rhs.m_chunkManagement = nullptr;
+//         rhs.m_chunkHeader = nullptr;
     }
     return *this;
 }
 
 void* SharedChunk::getPayload() const
 {
-    if (m_chunkManagement == nullptr)
+    auto chunkHeader = m_chunkManagement->m_chunkHeader;
+    if (chunkHeader == nullptr)
     {
         return nullptr;
     }
     else
     {
-        return m_chunkManagement->m_chunkHeader->payload();
+        return chunkHeader->payload();
     }
 }
 
@@ -137,29 +144,24 @@ SharedChunk::operator bool() const
 
 ChunkHeader* SharedChunk::getChunkHeader() const
 {
-    if (m_chunkManagement != nullptr)
-    {
-        return m_chunkManagement->m_chunkHeader;
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_chunkManagement->m_chunkHeader;
 }
 
 ChunkManagement* SharedChunk::release()
 {
     ChunkManagement* returnValue = m_chunkManagement;
     m_chunkManagement = nullptr;
+//     m_chunkHeader = nullptr;
     return returnValue;
 }
 
-iox::relative_ptr<ChunkManagement> SharedChunk::releaseWithRelativePtr()
-{
-    auto returnValue = m_chunkManagement;
-    m_chunkManagement = nullptr;
-    return returnValue;
-}
+// iox::relative_ptr<ChunkManagement> SharedChunk::releaseWithRelativePtr()
+// {
+//     auto returnValue = m_chunkManagement;
+//     m_chunkManagement = nullptr;
+//     m_chunkHeader = nullptr;
+//     return returnValue;
+// }
 
 } // namespace mepoo
 } // namespace iox

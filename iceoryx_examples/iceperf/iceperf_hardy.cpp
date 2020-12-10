@@ -36,16 +36,16 @@ void followerDo(IcePerfBase& ipcTechnology)
 
 int main()
 {
-#ifndef __APPLE__
-    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
-    std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-    followerDo(mq);
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // ensure leader first
-#endif
-
-    std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-    followerDo(uds);
+// #ifndef __APPLE__
+//     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+//     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+//     followerDo(mq);
+//     std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // ensure leader first
+// #endif
+//
+//     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+//     UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+//     followerDo(uds);
 
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
     iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon

@@ -16,7 +16,7 @@
 
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/cxx/variant.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 #include <utility>
 
@@ -359,10 +359,10 @@ class expected<ErrorType>
     expected& and_then(const cxx::function_ref<void()>& callable) noexcept;
 
   private:
-    expected(variant<ErrorType>&& store, const bool hasError) noexcept;
+    expected(optional<ErrorType>&& err, const bool hasError) noexcept;
 
   private:
-    variant<ErrorType> m_store;
+    optional<ErrorType> m_error;
     bool m_hasError;
 };
 
@@ -792,10 +792,12 @@ class expected<ValueType, ErrorType>
     optional<ValueType> to_optional() const noexcept;
 
   private:
-    expected(variant<ValueType, ErrorType>&& f_store, const bool hasError) noexcept;
+    expected(optional<ValueType>&& value, optional<ErrorType>&& err, const bool hasError) noexcept;
 
   private:
-    variant<ValueType, ErrorType> m_store;
+    optional<ValueType> m_value;
+    optional<ErrorType> m_error;
+    //alignas(maxAlignment<ValueType, ErrorType>()) byte_t m_data[maxSize<ValueType, ErrorType>()];
     bool m_hasError;
 };
 

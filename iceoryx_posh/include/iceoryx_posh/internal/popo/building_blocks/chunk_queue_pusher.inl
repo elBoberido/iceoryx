@@ -45,7 +45,7 @@ ChunkQueuePusher<ChunkQueueDataType>::getMembers() noexcept
 template <typename ChunkQueueDataType>
 inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueDataType>::tryPush(mepoo::SharedChunk chunk) noexcept
 {
-    ChunkTuple chunkTupleIn(chunk.releaseWithRelativePtr());
+    ChunkTuple chunkTupleIn(chunk.release());
 
     auto pushRet = getMembers()->m_queue.push(chunkTupleIn);
 
