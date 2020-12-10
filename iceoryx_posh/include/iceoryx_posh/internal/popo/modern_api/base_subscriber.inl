@@ -105,6 +105,22 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
 }
 
 template <typename T, typename port_t>
+inline cxx::expected<Sample<const T>, ChunkReceiveError> BaseSubscriber<T, port_t>::take2() noexcept
+{
+    auto result = m_port.tryGetChunk2();
+    if (result.has_error())
+    {
+        return cxx::error<ChunkReceiveError>(result.get_error());
+    }
+    else
+    {
+        auto header = result.value();
+        auto samplePtr = cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter);
+        return cxx::success<Sample<const T>>(Sample<const T>(std::move(samplePtr)));
+    }
+}
+
+template <typename T, typename port_t>
 inline void BaseSubscriber<T, port_t>::releaseQueuedSamples() noexcept
 {
     m_port.releaseQueuedChunks();

@@ -73,6 +73,36 @@ ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
 }
 
 template <typename ChunkReceiverDataType>
+inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveError>
+ChunkReceiver<ChunkReceiverDataType>::tryGet2() noexcept
+{
+    auto popRet = this->tryPop();
+
+    if (popRet.has_value())
+    {
+        auto sharedChunk = *popRet;
+
+        // if the application holds too many chunks, don't provide more
+        if (getMembers()->m_chunksInUse.insert(sharedChunk))
+        {
+            return cxx::success<const mepoo::ChunkHeader*>(
+                const_cast<const mepoo::ChunkHeader*>(sharedChunk.getChunkHeader()));
+        }
+        else
+        {
+            // release the chunk
+            sharedChunk = nullptr;
+            return cxx::error<ChunkReceiveError>(ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+        }
+    }
+    else
+    {
+        // no new chunk
+        return cxx::error<ChunkReceiveError>(ChunkReceiveError::NO_CHUNKS_AVAILABLE);
+    }
+}
+
+template <typename ChunkReceiverDataType>
 inline void ChunkReceiver<ChunkReceiverDataType>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);

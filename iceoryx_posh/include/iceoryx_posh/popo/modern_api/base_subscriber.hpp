@@ -92,6 +92,7 @@ class BaseSubscriber : public Condition
     /// @details The memory loan for the sample is automatically released when it goes out of scope.
     ///
     cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
+    cxx::expected<Sample<const T>, ChunkReceiveError> take2() noexcept;
 
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.

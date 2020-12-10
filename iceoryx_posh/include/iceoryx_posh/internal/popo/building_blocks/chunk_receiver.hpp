@@ -27,7 +27,8 @@ namespace popo
 {
 enum class ChunkReceiveError
 {
-    TOO_MANY_CHUNKS_HELD_IN_PARALLEL
+    NO_CHUNKS_AVAILABLE,
+    TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
 };
 
 /// @brief The ChunkReceiver is a building block of the shared memory communication infrastructure. It extends
@@ -57,6 +58,8 @@ class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::Ch
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
     /// ChunkReceiveError on error
     cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGet() noexcept;
+
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveError> tryGet2() noexcept;
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

@@ -45,6 +45,7 @@ class UntypedSubscriberImpl : public base_subscriber_t
     using base_subscriber_t::setConditionVariable;
     using base_subscriber_t::subscribe;
     using base_subscriber_t::take;
+    using base_subscriber_t::take2;
     using base_subscriber_t::unsetConditionVariable;
     using base_subscriber_t::unsubscribe;
 };

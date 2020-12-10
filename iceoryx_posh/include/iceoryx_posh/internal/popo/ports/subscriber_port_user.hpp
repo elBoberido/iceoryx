@@ -66,6 +66,8 @@ class SubscriberPortUser : public BasePort
     /// ChunkReceiveError on error
     cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGetChunk() noexcept;
 
+    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveError> tryGetChunk2() noexcept;
+
     /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
     void releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept;

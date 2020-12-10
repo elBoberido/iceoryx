@@ -69,13 +69,22 @@ void Iceoryx::shutdown() noexcept
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    m_publisher.loan(payloadSizeInBytes).and_then([&](auto& sample) {
+//     m_publisher.loan(payloadSizeInBytes).and_then([&](auto& sample) {
+//         auto sendSample = static_cast<PerfTopic*>(sample.get());
+//         sendSample->payloadSize = payloadSizeInBytes;
+//         sendSample->run = runFlag;
+//         sendSample->subPackets = 1;
+//         sample.publish();
+//     });
+    auto result = m_publisher.loan(payloadSizeInBytes);
+    if(result) {
+        auto& sample = result.value();
         auto sendSample = static_cast<PerfTopic*>(sample.get());
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
         sendSample->subPackets = 1;
         sample.publish();
-    });
+    }
 }
 
 PerfTopic Iceoryx::receivePerfTopic() noexcept
@@ -85,10 +94,15 @@ PerfTopic Iceoryx::receivePerfTopic() noexcept
 
     do
     {
-        m_subscriber.take().and_then([&](iox::popo::Sample<const void>& sample) {
-            receivedSample = *(static_cast<const PerfTopic*>(sample.get()));
+//         m_subscriber.take2().and_then([&](iox::popo::Sample<const void>& sample) {
+//             receivedSample = *(static_cast<const PerfTopic*>(sample.get()));
+//             hasReceivedSample = true;
+//         });
+        auto result = m_subscriber.take2();
+        if(result) {
+            receivedSample = *(static_cast<const PerfTopic*>(result.value().get()));
             hasReceivedSample = true;
-        });
+        }
     } while (!hasReceivedSample);
 
     return receivedSample;

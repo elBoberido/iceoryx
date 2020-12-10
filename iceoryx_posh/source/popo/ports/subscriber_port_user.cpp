@@ -84,6 +84,11 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> Subsc
     return m_chunkReceiver.tryGet();
 }
 
+cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveError> SubscriberPortUser::tryGetChunk2() noexcept
+{
+    return m_chunkReceiver.tryGet2();
+}
+
 void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     m_chunkReceiver.release(chunkHeader);
