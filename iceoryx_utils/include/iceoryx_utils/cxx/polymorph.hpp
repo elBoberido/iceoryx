@@ -137,7 +137,7 @@ class Polymorph
 
     /// Checks is there is a valid instance
     /// @return true if there is a valid instance
-    bool hasInstance() const noexcept;
+    bool isSpecified() const noexcept;
 
     /// Returns a pointer to the underlying instance
     /// @return pointer to the underlying instance or nullptr if there is no valid instance

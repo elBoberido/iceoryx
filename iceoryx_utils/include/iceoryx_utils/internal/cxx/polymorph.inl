@@ -63,7 +63,7 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::destruct() noexcept
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-bool Polymorph<Interface, TypeSize, TypeAlignment>::hasInstance() const noexcept
+bool Polymorph<Interface, TypeSize, TypeAlignment>::isSpecified() const noexcept
 {
     return m_instance != nullptr;
 }
