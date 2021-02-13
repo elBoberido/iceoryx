@@ -129,11 +129,11 @@ class Polymorph
     Polymorph(const Polymorph&) = delete;
     Polymorph& operator=(const Polymorph&) = delete;
 
-    /// Create a new instance of the Type
+    /// Replaces the current instance with an instance of the specified Type
     /// @param [in] Type the type to instantiate, wrapped in PolymorphType
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
     template <typename Type, typename... CTorArgs>
-    void newInstance(CTorArgs&&... ctorArgs) noexcept;
+    void emplace(CTorArgs&&... ctorArgs) noexcept;
 
     /// Calls the destructor if there is a valid instance, otherwise nothing happens
     void deleteInstance() noexcept;

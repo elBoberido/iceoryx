@@ -182,7 +182,7 @@ TEST_F(Polymorph_test, PolymorphWithNonDerivedObjectDestructsSpecificType)
 TEST_F(Polymorph_test, EmplacingIsSuccessful)
 {
     SUT sut;
-    sut.newInstance<Foo>();
+    sut.emplace<Foo>();
 
     ASSERT_THAT(sut.hasInstance(), Eq(true));
     EXPECT_THAT(sut->identity(), Eq(Identity::Foo));
@@ -193,7 +193,7 @@ TEST_F(Polymorph_test, PolymorphWithEmplaceDestructsSpecifiedType)
 {
     {
         SUT sut;
-        sut.newInstance<Bar>(LuckyNumber::Bar);
+        sut.emplace<Bar>(LuckyNumber::Bar);
 
         g_destructionIdentities.clear();
     }
@@ -204,11 +204,11 @@ TEST_F(Polymorph_test, PolymorphWithEmplaceDestructsSpecifiedType)
 TEST_F(Polymorph_test, EmplacingExistingPolymorphIsSuccessful)
 {
     SUT sut;
-    sut.newInstance<Bar>(LuckyNumber::Bar);
+    sut.emplace<Bar>(LuckyNumber::Bar);
 
     g_destructionIdentities.clear();
 
-    sut.newInstance<Foo>();
+    sut.emplace<Foo>();
 
     ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
