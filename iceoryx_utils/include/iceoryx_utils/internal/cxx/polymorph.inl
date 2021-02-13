@@ -30,7 +30,7 @@ namespace cxx
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
 Polymorph<Interface, TypeSize, TypeAlignment>::~Polymorph() noexcept
 {
-    deleteInstance();
+    destruct();
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
@@ -47,13 +47,13 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
     static_assert(TypeAlignment >= alignof(Type), "Alignment missmatch! No safe instantiation of Type possible!");
     static_assert(TypeSize >= sizeof(Type), "Size missmatch! Not enough space to instantiate Type!");
 
-    deleteInstance();
+    destruct();
 
     m_instance = new (m_heap) Type(std::forward<CTorArgs>(ctorArgs)...);
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-void Polymorph<Interface, TypeSize, TypeAlignment>::deleteInstance() noexcept
+void Polymorph<Interface, TypeSize, TypeAlignment>::destruct() noexcept
 {
     if (m_instance != nullptr)
     {

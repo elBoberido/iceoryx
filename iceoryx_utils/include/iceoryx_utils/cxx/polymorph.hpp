@@ -135,9 +135,6 @@ class Polymorph
     template <typename Type, typename... CTorArgs>
     void emplace(CTorArgs&&... ctorArgs) noexcept;
 
-    /// Calls the destructor if there is a valid instance, otherwise nothing happens
-    void deleteInstance() noexcept;
-
     /// Checks is there is a valid instance
     /// @return true if there is a valid instance
     bool hasInstance() const noexcept;
@@ -149,6 +146,9 @@ class Polymorph
     /// Returns a reference to the underlying instance. If there is no valid instance, the behaviour is undefined
     /// @return reference to the underlying instance
     Interface& operator*() const noexcept;
+
+  private:
+    void destruct() noexcept;
 
   private:
     Interface* m_instance{nullptr};
