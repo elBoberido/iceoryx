@@ -116,30 +116,42 @@ class Polymorph_test : public Test
     static constexpr auto MaxAlignment = iox::cxx::maxAlignment<Bar, Foo>();
 
     using SUT = iox::cxx::Polymorph<Interface, MaxSize, MaxAlignment>;
-
-    SUT m_sut;
 };
 
-TEST_F(Polymorph_test, SizeAndAlignment)
+TEST_F(Polymorph_test, SizeIsCorrect)
 {
     constexpr uint32_t BookkeepingSize{MaxAlignment}; // offset of the aligned storage is the MaxAlignment value
-    EXPECT_THAT(sizeof(m_sut), Eq(MaxSize + BookkeepingSize));
+
+    SUT sut;
+
+    EXPECT_THAT(sizeof(sut), Eq(MaxSize + BookkeepingSize));
+}
+
+TEST_F(Polymorph_test, AlignmentIsCorrect)
+{
+    SUT sut;
+
     EXPECT_THAT(alignof(SUT), Eq(MaxAlignment));
 }
 
-TEST_F(Polymorph_test, CTor_default)
+TEST_F(Polymorph_test, DefaultConstructorLeadsToEmptyObject)
 {
-    EXPECT_THAT(m_sut.hasInstance(), Eq(false));
+    SUT sut;
+    EXPECT_THAT(sut.hasInstance(), Eq(false));
 }
 
-TEST_F(Polymorph_test, CTorDTor_BaseClass)
+TEST_F(Polymorph_test, ConstructionIsSuccessful)
+{
+    SUT sut{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
+    ASSERT_THAT(sut.hasInstance(), Eq(true));
+    EXPECT_THAT(sut->identity(), Eq(Identity::Bar));
+    EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Bar));
+}
+
+TEST_F(Polymorph_test, PolymorphDestructsSpecificType)
 {
     {
         SUT sut{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
-        ASSERT_THAT(sut.hasInstance(), Eq(true));
-        EXPECT_THAT(sut->identity(), Eq(Identity::Bar));
-        EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Bar));
-
         g_destructionIdentities.clear();
     }
 
@@ -147,13 +159,18 @@ TEST_F(Polymorph_test, CTorDTor_BaseClass)
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
-TEST_F(Polymorph_test, CTorDTor_NonDerived)
+TEST_F(Polymorph_test, ConstructingNonDerivedObjectIsSuccessful)
+{
+    iox::cxx::Polymorph<Bar, sizeof(Bar), alignof(Bar)> sut{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
+    ASSERT_THAT(sut.hasInstance(), Eq(true));
+    EXPECT_THAT(sut->identity(), Eq(Identity::Bar));
+    EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Bar));
+}
+
+TEST_F(Polymorph_test, PolymorphWithNonDerivedObjectDestructsSpecificType)
 {
     {
         iox::cxx::Polymorph<Bar, sizeof(Bar), alignof(Bar)> sut{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
-        ASSERT_THAT(sut.hasInstance(), Eq(true));
-        EXPECT_THAT(sut->identity(), Eq(Identity::Bar));
-        EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Bar));
 
         g_destructionIdentities.clear();
     }
@@ -162,47 +179,41 @@ TEST_F(Polymorph_test, CTorDTor_NonDerived)
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
-TEST_F(Polymorph_test, newInstance)
+TEST_F(Polymorph_test, EmplacingIsSuccessful)
 {
-    m_sut.newInstance<Foo>();
+    SUT sut;
+    sut.newInstance<Foo>();
 
-    ASSERT_THAT(m_sut.hasInstance(), Eq(true));
-    EXPECT_THAT(m_sut->identity(), Eq(Identity::Foo));
-    EXPECT_THAT(m_sut->luckyNumber(), Eq(LuckyNumber::Foo));
+    ASSERT_THAT(sut.hasInstance(), Eq(true));
+    EXPECT_THAT(sut->identity(), Eq(Identity::Foo));
+    EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Foo));
 }
 
-TEST_F(Polymorph_test, deleteInstance)
+TEST_F(Polymorph_test, PolymorphWithEmplaceDestructsSpecifiedType)
 {
-    m_sut.newInstance<Bar>(LuckyNumber::Bar);
+    {
+        SUT sut;
+        sut.newInstance<Bar>(LuckyNumber::Bar);
 
-    g_destructionIdentities.clear();
-    m_sut.deleteInstance();
+        g_destructionIdentities.clear();
+    }
     ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
-    EXPECT_THAT(m_sut.hasInstance(), Eq(false));
 }
 
-TEST_F(Polymorph_test, overwriteInstance)
+TEST_F(Polymorph_test, EmplacingExistingPolymorphIsSuccessful)
 {
-    m_sut.newInstance<Bar>(LuckyNumber::Bar);
+    SUT sut;
+    sut.newInstance<Bar>(LuckyNumber::Bar);
 
     g_destructionIdentities.clear();
 
-    m_sut.newInstance<Foo>();
+    sut.newInstance<Foo>();
 
     ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 
-    ASSERT_THAT(m_sut.hasInstance(), Eq(true));
-    EXPECT_THAT(m_sut->identity(), Eq(Identity::Foo));
-    EXPECT_THAT(m_sut->luckyNumber(), Eq(LuckyNumber::Foo));
-}
-
-TEST_F(Polymorph_test, instanceAccess)
-{
-    m_sut.newInstance<Bar>(LuckyNumber::Bar);
-
-    ASSERT_THAT(m_sut.hasInstance(), Eq(true));
-    EXPECT_THAT(m_sut->identity(), Eq(Identity::Bar));
-    EXPECT_THAT((*m_sut).identity(), Eq(Identity::Bar));
+    ASSERT_THAT(sut.hasInstance(), Eq(true));
+    EXPECT_THAT(sut->identity(), Eq(Identity::Foo));
+    EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Foo));
 }
