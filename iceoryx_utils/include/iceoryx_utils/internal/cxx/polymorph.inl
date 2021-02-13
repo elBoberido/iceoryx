@@ -34,22 +34,22 @@ Polymorph<Interface, TypeSize, TypeAlignment>::~Polymorph() noexcept
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-template <typename Type, typename... CTorArgs>
-Polymorph<Interface, TypeSize, TypeAlignment>::Polymorph(PolymorphType<Type>, CTorArgs&&... ctorArgs) noexcept
+template <typename T, typename... CTorArgs>
+Polymorph<Interface, TypeSize, TypeAlignment>::Polymorph(PolymorphType<T>, CTorArgs&&... ctorArgs) noexcept
 {
-    emplace<Type>(std::forward<CTorArgs>(ctorArgs)...);
+    emplace<T>(std::forward<CTorArgs>(ctorArgs)...);
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-template <typename Type, typename... CTorArgs>
+template <typename T, typename... CTorArgs>
 void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorArgs) noexcept
 {
-    static_assert(TypeAlignment >= alignof(Type), "Alignment missmatch! No safe instantiation of Type possible!");
-    static_assert(TypeSize >= sizeof(Type), "Size missmatch! Not enough space to instantiate Type!");
+    static_assert(TypeAlignment >= alignof(T), "Alignment missmatch! No safe instantiation of Type possible!");
+    static_assert(TypeSize >= sizeof(T), "Size missmatch! Not enough space to instantiate Type!");
 
     destruct();
 
-    m_instance = new (m_heap) Type(std::forward<CTorArgs>(ctorArgs)...);
+    m_instance = new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>

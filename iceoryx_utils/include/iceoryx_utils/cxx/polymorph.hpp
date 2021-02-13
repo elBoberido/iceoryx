@@ -31,7 +31,7 @@ class PolymorphType
 {
 };
 
-/// @brief Reserves space on stack for placement new instatiation
+/// @brief Reserves space on stack for placement new instantiation
 /// @param Interface base type of all classes which should be stored in here
 /// @param TypeSize maximum size of a child of Interface
 /// @param TypeAlignment alignment which is required for the types
@@ -86,26 +86,11 @@ class PolymorphType
 ///     FooBar fooBar1{cxx::PolymorphType<Foo>(), 42};
 ///     fooBar1->doStuff();
 ///
-///     fooBar1.newInstance<Bar>();
+///     fooBar1.emplace<Bar>();
 ///     fooBar1->doStuff();
 ///
-///     fooBar1.newInstance<Foo>(13);
+///     fooBar1.emplace<Foo>(13);
 ///     fooBar1->doStuff();
-///
-///     FooBar fooBar2;
-///     if (!fooBar2.hasInstance())
-///     {
-///         std::cout << "There is no instance!" << std::endl;
-///     }
-///
-///     fooBar2.newInstance<Bar>();
-///     fooBar2->doStuff();
-///
-///     fooBar2.deleteInstance();
-///     if (!fooBar2.hasInstance())
-///     {
-///         std::cout << "There is again no instance!" << std::endl;
-///     }
 ///
 ///     return 0;
 /// }
@@ -114,14 +99,13 @@ template <typename Interface, size_t TypeSize, size_t TypeAlignment = 8>
 class Polymorph
 {
   public:
-    Polymorph() = default;
     ~Polymorph() noexcept;
 
-    /// Constructor for immediate construction of an instance
-    /// @param [in] Type the type to instantiate, wrapped in PolymorphType
+    /// Constructor for a specific instance
+    /// @param [in] T the type to instantiate, wrapped in PolymorphType
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
-    template <typename Type, typename... CTorArgs>
-    Polymorph(PolymorphType<Type>, CTorArgs&&... ctorArgs) noexcept;
+    template <typename T, typename... CTorArgs>
+    Polymorph(PolymorphType<T>, CTorArgs&&... ctorArgs) noexcept;
 
     Polymorph(Polymorph&& other) = delete;
     Polymorph& operator=(Polymorph&& rhs) = delete;
@@ -130,9 +114,9 @@ class Polymorph
     Polymorph& operator=(const Polymorph&) = delete;
 
     /// Replaces the current instance with an instance of the specified Type
-    /// @param [in] Type the type to instantiate, wrapped in PolymorphType
+    /// @param [in] T the type to instantiate
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
-    template <typename Type, typename... CTorArgs>
+    template <typename T, typename... CTorArgs>
     void emplace(CTorArgs&&... ctorArgs) noexcept;
 
     /// Checks is there is a valid instance
@@ -148,11 +132,16 @@ class Polymorph
     Interface& operator*() const noexcept;
 
   private:
+    // helper struct used for situation where the object must be defined but unspecified like after a move
+    struct Unspecified
+    {
+    };
+
     void destruct() noexcept;
 
   private:
     Interface* m_instance{nullptr};
-    alignas(TypeAlignment) uint8_t m_heap[TypeSize];
+    alignas(TypeAlignment) uint8_t m_storage[TypeSize];
 };
 
 } // namespace cxx
