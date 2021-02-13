@@ -13,10 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_CXX_POOR_MANS_HEAP_INL
-#define IOX_UTILS_CXX_POOR_MANS_HEAP_INL
 
-#include "iceoryx_utils/cxx/poor_mans_heap.hpp"
+#ifndef IOX_UTILS_CXX_POLYMORPH_INL
+#define IOX_UTILS_CXX_POLYMORPH_INL
+
+#include "iceoryx_utils/cxx/polymorph.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -27,21 +28,21 @@ namespace iox
 namespace cxx
 {
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-PoorMansHeap<Interface, TypeSize, TypeAlignment>::~PoorMansHeap() noexcept
+Polymorph<Interface, TypeSize, TypeAlignment>::~Polymorph() noexcept
 {
     deleteInstance();
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
 template <typename Type, typename... CTorArgs>
-PoorMansHeap<Interface, TypeSize, TypeAlignment>::PoorMansHeap(PoorMansHeapType<Type>, CTorArgs&&... ctorArgs) noexcept
+Polymorph<Interface, TypeSize, TypeAlignment>::Polymorph(PolymorphType<Type>, CTorArgs&&... ctorArgs) noexcept
 {
     newInstance<Type>(std::forward<CTorArgs>(ctorArgs)...);
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
 template <typename Type, typename... CTorArgs>
-void PoorMansHeap<Interface, TypeSize, TypeAlignment>::newInstance(CTorArgs&&... ctorArgs) noexcept
+void Polymorph<Interface, TypeSize, TypeAlignment>::newInstance(CTorArgs&&... ctorArgs) noexcept
 {
     static_assert(TypeAlignment >= alignof(Type), "Alignment missmatch! No safe instantiation of Type possible!");
     static_assert(TypeSize >= sizeof(Type), "Size missmatch! Not enough space to instantiate Type!");
@@ -52,7 +53,7 @@ void PoorMansHeap<Interface, TypeSize, TypeAlignment>::newInstance(CTorArgs&&...
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-void PoorMansHeap<Interface, TypeSize, TypeAlignment>::deleteInstance() noexcept
+void Polymorph<Interface, TypeSize, TypeAlignment>::deleteInstance() noexcept
 {
     if (m_instance != nullptr)
     {
@@ -62,19 +63,19 @@ void PoorMansHeap<Interface, TypeSize, TypeAlignment>::deleteInstance() noexcept
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-bool PoorMansHeap<Interface, TypeSize, TypeAlignment>::hasInstance() const noexcept
+bool Polymorph<Interface, TypeSize, TypeAlignment>::hasInstance() const noexcept
 {
     return m_instance != nullptr;
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-Interface* PoorMansHeap<Interface, TypeSize, TypeAlignment>::operator->() const noexcept
+Interface* Polymorph<Interface, TypeSize, TypeAlignment>::operator->() const noexcept
 {
     return m_instance;
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-Interface& PoorMansHeap<Interface, TypeSize, TypeAlignment>::operator*() const noexcept
+Interface& Polymorph<Interface, TypeSize, TypeAlignment>::operator*() const noexcept
 {
     return *m_instance;
 }
@@ -82,4 +83,4 @@ Interface& PoorMansHeap<Interface, TypeSize, TypeAlignment>::operator*() const n
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_UTILS_CXX_POOR_MANS_HEAP_INL
+#endif // IOX_UTILS_CXX_POLYMORPH_INL

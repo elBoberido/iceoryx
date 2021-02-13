@@ -14,8 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_utils/cxx/polymorph.hpp"
+
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/cxx/poor_mans_heap.hpp"
 #include "test.hpp"
 
 
@@ -100,7 +101,7 @@ class Foo : public Interface
 
 } // namespace
 
-class PoorMansHeap_test : public Test
+class Polymorph_test : public Test
 {
   public:
     void SetUp() override
@@ -114,27 +115,27 @@ class PoorMansHeap_test : public Test
     static constexpr auto MaxSize = iox::cxx::maxSize<Bar, Foo>();
     static constexpr auto MaxAlignment = iox::cxx::maxAlignment<Bar, Foo>();
 
-    using SUT = iox::cxx::PoorMansHeap<Interface, MaxSize, MaxAlignment>;
+    using SUT = iox::cxx::Polymorph<Interface, MaxSize, MaxAlignment>;
 
     SUT m_sut;
 };
 
-TEST_F(PoorMansHeap_test, SizeAndAlignment)
+TEST_F(Polymorph_test, SizeAndAlignment)
 {
     constexpr uint32_t BookkeepingSize{MaxAlignment}; // offset of the aligned storage is the MaxAlignment value
     EXPECT_THAT(sizeof(m_sut), Eq(MaxSize + BookkeepingSize));
     EXPECT_THAT(alignof(SUT), Eq(MaxAlignment));
 }
 
-TEST_F(PoorMansHeap_test, CTor_default)
+TEST_F(Polymorph_test, CTor_default)
 {
     EXPECT_THAT(m_sut.hasInstance(), Eq(false));
 }
 
-TEST_F(PoorMansHeap_test, CTorDTor_BaseClass)
+TEST_F(Polymorph_test, CTorDTor_BaseClass)
 {
     {
-        SUT sut{iox::cxx::PoorMansHeapType<Bar>(), LuckyNumber::Bar};
+        SUT sut{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
         ASSERT_THAT(sut.hasInstance(), Eq(true));
         EXPECT_THAT(sut->identity(), Eq(Identity::Bar));
         EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Bar));
@@ -146,10 +147,10 @@ TEST_F(PoorMansHeap_test, CTorDTor_BaseClass)
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
-TEST_F(PoorMansHeap_test, CTorDTor_NonDerived)
+TEST_F(Polymorph_test, CTorDTor_NonDerived)
 {
     {
-        iox::cxx::PoorMansHeap<Bar, sizeof(Bar), alignof(Bar)> sut{iox::cxx::PoorMansHeapType<Bar>(), LuckyNumber::Bar};
+        iox::cxx::Polymorph<Bar, sizeof(Bar), alignof(Bar)> sut{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
         ASSERT_THAT(sut.hasInstance(), Eq(true));
         EXPECT_THAT(sut->identity(), Eq(Identity::Bar));
         EXPECT_THAT(sut->luckyNumber(), Eq(LuckyNumber::Bar));
@@ -161,7 +162,7 @@ TEST_F(PoorMansHeap_test, CTorDTor_NonDerived)
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
-TEST_F(PoorMansHeap_test, newInstance)
+TEST_F(Polymorph_test, newInstance)
 {
     m_sut.newInstance<Foo>();
 
@@ -170,7 +171,7 @@ TEST_F(PoorMansHeap_test, newInstance)
     EXPECT_THAT(m_sut->luckyNumber(), Eq(LuckyNumber::Foo));
 }
 
-TEST_F(PoorMansHeap_test, deleteInstance)
+TEST_F(Polymorph_test, deleteInstance)
 {
     m_sut.newInstance<Bar>(LuckyNumber::Bar);
 
@@ -181,7 +182,7 @@ TEST_F(PoorMansHeap_test, deleteInstance)
     EXPECT_THAT(m_sut.hasInstance(), Eq(false));
 }
 
-TEST_F(PoorMansHeap_test, overwriteInstance)
+TEST_F(Polymorph_test, overwriteInstance)
 {
     m_sut.newInstance<Bar>(LuckyNumber::Bar);
 
@@ -197,7 +198,7 @@ TEST_F(PoorMansHeap_test, overwriteInstance)
     EXPECT_THAT(m_sut->luckyNumber(), Eq(LuckyNumber::Foo));
 }
 
-TEST_F(PoorMansHeap_test, instanceAccess)
+TEST_F(Polymorph_test, instanceAccess)
 {
     m_sut.newInstance<Bar>(LuckyNumber::Bar);
 

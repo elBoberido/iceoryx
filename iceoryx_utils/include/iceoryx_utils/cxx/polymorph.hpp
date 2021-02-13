@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_UTILS_CXX_POOR_MANS_HEAP_HPP
-#define IOX_UTILS_CXX_POOR_MANS_HEAP_HPP
+
+#ifndef IOX_UTILS_CXX_POLYMORPH_HPP
+#define IOX_UTILS_CXX_POLYMORPH_HPP
 
 #include <cstddef>
 #include <cstdint>
@@ -24,9 +25,9 @@ namespace iox
 {
 namespace cxx
 {
-/// This is a proxy which must be used for the non default PoorMansHeap ctor
-template <typename Type>
-class PoorMansHeapType
+/// This is a proxy which must be used for the non default Polymorph ctor
+template <typename T>
+class PolymorphType
 {
 };
 
@@ -80,9 +81,9 @@ class PoorMansHeapType
 ///     constexpr auto MaxSize = cxx::maxSize<Foo, Bar>();
 ///     constexpr auto MaxAlignment = cxx::maxAlignment<Foo, Bar>();
 ///
-///     using FooBar = cxx::PoorMansHeap<Base, MaxSize, MaxAlignment>;
+///     using FooBar = cxx::Polymorph<Base, MaxSize, MaxAlignment>;
 ///
-///     FooBar fooBar1{cxx::PoorMansHeapType<Foo>(), 42};
+///     FooBar fooBar1{cxx::PolymorphType<Foo>(), 42};
 ///     fooBar1->doStuff();
 ///
 ///     fooBar1.newInstance<Bar>();
@@ -110,26 +111,26 @@ class PoorMansHeapType
 /// }
 /// @endcode
 template <typename Interface, size_t TypeSize, size_t TypeAlignment = 8>
-class PoorMansHeap
+class Polymorph
 {
   public:
-    PoorMansHeap() = default;
-    ~PoorMansHeap() noexcept;
+    Polymorph() = default;
+    ~Polymorph() noexcept;
 
     /// Constructor for immediate construction of an instance
-    /// @param [in] Type the type to instantiate, wrapped in PoorMansHeapType
+    /// @param [in] Type the type to instantiate, wrapped in PolymorphType
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
     template <typename Type, typename... CTorArgs>
-    PoorMansHeap(PoorMansHeapType<Type>, CTorArgs&&... ctorArgs) noexcept;
+    Polymorph(PolymorphType<Type>, CTorArgs&&... ctorArgs) noexcept;
 
-    PoorMansHeap(PoorMansHeap&& other) = delete;
-    PoorMansHeap& operator=(PoorMansHeap&& rhs) = delete;
+    Polymorph(Polymorph&& other) = delete;
+    Polymorph& operator=(Polymorph&& rhs) = delete;
 
-    PoorMansHeap(const PoorMansHeap&) = delete;
-    PoorMansHeap& operator=(const PoorMansHeap&) = delete;
+    Polymorph(const Polymorph&) = delete;
+    Polymorph& operator=(const Polymorph&) = delete;
 
     /// Create a new instance of the Type
-    /// @param [in] Type the type to instantiate, wrapped in PoorMansHeapType
+    /// @param [in] Type the type to instantiate, wrapped in PolymorphType
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
     template <typename Type, typename... CTorArgs>
     void newInstance(CTorArgs&&... ctorArgs) noexcept;
@@ -157,6 +158,6 @@ class PoorMansHeap
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/poor_mans_heap.inl"
+#include "iceoryx_utils/internal/cxx/polymorph.inl"
 
-#endif // IOX_UTILS_CXX_POOR_MANS_HEAP_HPP
+#endif // IOX_UTILS_CXX_POLYMORPH_HPP
