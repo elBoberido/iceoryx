@@ -31,6 +31,53 @@ class PolymorphType
 {
 };
 
+template <typename I, uint64_t Size, uint64_t Alignment>
+class Polymorph;
+
+template <typename I, uint64_t Size, uint64_t Alignment>
+struct PolymorphTypeRetention
+{
+    using Polymorph_t = Polymorph<I, Size, Alignment>;
+
+    template <typename T>
+    static void polymorphId()
+    {
+    }
+
+    template <typename P, typename T_base, typename T_rhs>
+    static void mover(P* lhs, P* rhs)
+    {
+        if (lhs == rhs)
+        {
+            return;
+        }
+
+        if (lhs->m_instance && rhs->m_instance && lhs->m_typeRetention.id == rhs->m_typeRetention.id)
+        {
+            *static_cast<T_rhs*>(lhs->m_instance) = std::move(*static_cast<T_rhs*>(rhs->m_instance));
+        }
+        else
+        {
+            if (lhs->m_instance)
+            {
+                lhs->m_instance->~T_base();
+                lhs->m_instance = nullptr;
+            }
+            if (rhs->m_instance)
+            {
+                lhs->m_instance = new (lhs->m_storage) T_rhs(std::move(*static_cast<T_rhs*>(rhs->m_instance)));
+            }
+        }
+        lhs->m_typeRetention.id = rhs->m_typeRetention.id;
+        rhs->m_typeRetention.id = nullptr;
+        lhs->m_typeRetention.move = rhs->m_typeRetention.move;
+        rhs->m_typeRetention.move = nullptr;
+    }
+
+    void (*id)(){nullptr};
+    void (*move)(Polymorph_t*, Polymorph_t*){nullptr};
+};
+
 /// @brief Reserves space on stack for placement new instantiation
 /// @param Interface base type of all classes which should be stored in here
 /// @param TypeSize maximum size of a child of Interface
@@ -107,8 +154,15 @@ class Polymorph
     template <typename T, typename... CTorArgs>
     Polymorph(PolymorphType<T>, CTorArgs&&... ctorArgs) noexcept;
 
-    Polymorph(Polymorph&& other) = delete;
-    Polymorph& operator=(Polymorph&& rhs) = delete;
+    Polymorph(Polymorph&& other)
+    {
+        other.m_typeRetention.move(this, &other);
+    }
+    Polymorph& operator=(Polymorph&& rhs)
+    {
+        rhs.m_typeRetention.move(this, &rhs);
+        return *this;
+    }
 
     Polymorph(const Polymorph&) = delete;
     Polymorph& operator=(const Polymorph&) = delete;
@@ -131,6 +185,9 @@ class Polymorph
     /// @return reference to the underlying instance
     Interface& operator*() const noexcept;
 
+    template <typename I, uint64_t S, uint64_t A>
+    friend struct PolymorphTypeRetention;
+
   private:
     // helper struct used for situation where the object must be defined but unspecified like after a move
     struct Unspecified
@@ -140,8 +197,9 @@ class Polymorph
     void destruct() noexcept;
 
   private:
-    Interface* m_instance{nullptr};
     alignas(TypeAlignment) uint8_t m_storage[TypeSize];
+    Interface* m_instance{nullptr};
+    PolymorphTypeRetention<Interface, TypeSize, TypeAlignment> m_typeRetention;
 };
 
 } // namespace cxx

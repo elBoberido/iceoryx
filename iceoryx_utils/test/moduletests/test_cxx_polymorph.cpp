@@ -106,6 +106,7 @@ class Polymorph_test : public Test
   public:
     void SetUp() override
     {
+        g_destructionIdentities.clear();
     }
 
     void TearDown() override
@@ -195,4 +196,35 @@ TEST_F(Polymorph_test, PolymorphWithEmplaceDestructsSpecifiedType)
     }
     ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
+}
+
+TEST_F(Polymorph_test, MovingOfSameTypesResultsInSameType)
+{
+    {
+        SUT sut1{iox::cxx::PolymorphType<Foo>()};
+        SUT sut2(std::move(sut1));
+
+        ASSERT_THAT(g_destructionIdentities.size(), Eq(0u));
+    }
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(2u));
+    EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
+    EXPECT_THAT(g_destructionIdentities[1], Eq(Identity::Foo));
+}
+
+TEST_F(Polymorph_test, MovingOfDifferentTypesResultsInDifferentType)
+{
+    {
+        SUT sut1{iox::cxx::PolymorphType<Foo>()};
+        SUT sut2{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
+        ASSERT_THAT(g_destructionIdentities.size(), Eq(0u));
+        sut2 = std::move(sut1);
+
+        ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+        EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
+
+        g_destructionIdentities.clear();
+    }
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(2u));
+    EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
+    EXPECT_THAT(g_destructionIdentities[1], Eq(Identity::Foo));
 }

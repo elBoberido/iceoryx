@@ -50,6 +50,9 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
     destruct();
 
     m_instance = new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
+    m_typeRetention.id = &PolymorphTypeRetention<Interface, TypeSize, TypeAlignment>::template polymorphId<T>;
+    m_typeRetention.move =
+        &PolymorphTypeRetention<Interface, TypeSize, TypeAlignment>::template mover<Polymorph, Interface, T>;
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
