@@ -47,6 +47,10 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
     static_assert(TypeAlignment >= alignof(T), "Alignment missmatch! No safe instantiation of Type possible!");
     static_assert(TypeSize >= sizeof(T), "Size missmatch! Not enough space to instantiate Type!");
 
+    static_assert(std::is_base_of<Interface, T>(), "The type T must be derived from Interface!");
+    static_assert(std::is_same<Interface, T>() || std::has_virtual_destructor<Interface>::value,
+                  "The interface must have a virtual destructor!");
+
     destruct();
 
     m_instance = new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
