@@ -159,8 +159,8 @@ class Polymorph
         template <typename T>
         static void polymorphId() noexcept;
 
-        template <typename P, typename T_base, typename T_rhs>
-        static void mover(P* lhs, P* rhs) noexcept;
+        template <typename T_rhs>
+        static void mover(Polymorph* lhs, Polymorph* rhs) noexcept;
 
         void (*id)(){UNSPECIFIED_ID};
         void (*move)(Polymorph*, Polymorph*){UNSPECIFIED_MOVE};

@@ -33,8 +33,8 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::TypeRetention::polymorphId()
 {
 }
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-template <typename P, typename T_base, typename T_rhs>
-void Polymorph<Interface, TypeSize, TypeAlignment>::TypeRetention::mover(P* lhs, P* rhs) noexcept
+template <typename T_rhs>
+void Polymorph<Interface, TypeSize, TypeAlignment>::TypeRetention::mover(Polymorph* lhs, Polymorph* rhs) noexcept
 {
     if (lhs == rhs)
     {
@@ -88,7 +88,7 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
 
     new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
     m_typeRetention.id = &TypeRetention::template polymorphId<T>;
-    m_typeRetention.move = &TypeRetention::template mover<Polymorph, Interface, T>;
+    m_typeRetention.move = &TypeRetention::template mover<T>;
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
