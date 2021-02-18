@@ -28,6 +28,42 @@ namespace iox
 namespace cxx
 {
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename T>
+void Polymorph<Interface, TypeSize, TypeAlignment>::TypeRetention::polymorphId() noexcept
+{
+}
+template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename P, typename T_base, typename T_rhs>
+void Polymorph<Interface, TypeSize, TypeAlignment>::TypeRetention::mover(P* lhs, P* rhs) noexcept
+{
+    if (lhs == rhs)
+    {
+        return;
+    }
+
+    if (lhs->m_instance && rhs->m_instance && lhs->m_typeRetention.id == rhs->m_typeRetention.id)
+    {
+        *static_cast<T_rhs*>(lhs->m_instance) = std::move(*static_cast<T_rhs*>(rhs->m_instance));
+    }
+    else
+    {
+        if (lhs->m_instance)
+        {
+            lhs->m_instance->~T_base();
+            lhs->m_instance = nullptr;
+        }
+        if (rhs->m_instance)
+        {
+            lhs->m_instance = new (lhs->m_storage) T_rhs(std::move(*static_cast<T_rhs*>(rhs->m_instance)));
+        }
+    }
+    lhs->m_typeRetention.id = rhs->m_typeRetention.id;
+    rhs->m_typeRetention.id = nullptr;
+    lhs->m_typeRetention.move = rhs->m_typeRetention.move;
+    rhs->m_typeRetention.move = nullptr;
+}
+
+template <typename Interface, size_t TypeSize, size_t TypeAlignment>
 Polymorph<Interface, TypeSize, TypeAlignment>::~Polymorph() noexcept
 {
     destruct();
@@ -54,9 +90,8 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
     destruct();
 
     m_instance = new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
-    m_typeRetention.id = &PolymorphTypeRetention<Interface, TypeSize, TypeAlignment>::template polymorphId<T>;
-    m_typeRetention.move =
-        &PolymorphTypeRetention<Interface, TypeSize, TypeAlignment>::template mover<Polymorph, Interface, T>;
+    m_typeRetention.id = &TypeRetention::template polymorphId<T>;
+    m_typeRetention.move = &TypeRetention::template mover<Polymorph, Interface, T>;
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
