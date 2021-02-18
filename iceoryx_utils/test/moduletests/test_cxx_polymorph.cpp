@@ -151,7 +151,7 @@ TEST_F(Polymorph_test, PolymorphDestructsSpecificType)
         g_destructionIdentities.clear();
     }
 
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
@@ -172,7 +172,7 @@ TEST_F(Polymorph_test, PolymorphWithNonDerivedObjectDestructsSpecificType)
         g_destructionIdentities.clear();
     }
 
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
@@ -194,7 +194,7 @@ TEST_F(Polymorph_test, PolymorphWithEmplaceDestructsSpecifiedType)
 
         g_destructionIdentities.clear();
     }
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
 }
 
@@ -202,29 +202,40 @@ TEST_F(Polymorph_test, MovingOfSameTypesResultsInSameType)
 {
     {
         SUT sut1{iox::cxx::PolymorphType<Foo>()};
-        SUT sut2(std::move(sut1));
+        {
+            SUT sut2(std::move(sut1));
 
-        ASSERT_THAT(g_destructionIdentities.size(), Eq(0u));
+            ASSERT_THAT(g_destructionIdentities.size(), Eq(0U));
+        }
+
+        ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
+        EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
+
+        g_destructionIdentities.clear();
     }
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(2u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
-    EXPECT_THAT(g_destructionIdentities[1], Eq(Identity::Foo));
 }
 
 TEST_F(Polymorph_test, MovingOfDifferentTypesResultsInDifferentType)
 {
     {
         SUT sut1{iox::cxx::PolymorphType<Foo>()};
-        SUT sut2{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
-        ASSERT_THAT(g_destructionIdentities.size(), Eq(0u));
-        sut2 = std::move(sut1);
+        {
+            SUT sut2{iox::cxx::PolymorphType<Bar>(), LuckyNumber::Bar};
+            sut2 = std::move(sut1);
 
-        ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
-        EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
+            ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
+            EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
+
+            g_destructionIdentities.clear();
+        }
+
+        ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
+        EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
 
         g_destructionIdentities.clear();
     }
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(2u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Foo));
-    EXPECT_THAT(g_destructionIdentities[1], Eq(Identity::Foo));
 }

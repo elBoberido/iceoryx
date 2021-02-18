@@ -41,26 +41,23 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::TypeRetention::mover(P* lhs,
         return;
     }
 
-    if (lhs->m_instance && rhs->m_instance && lhs->m_typeRetention.id == rhs->m_typeRetention.id)
+    if (lhs->isSpecified() && rhs->isSpecified() && lhs->m_typeRetention.id == rhs->m_typeRetention.id)
     {
-        *static_cast<T_rhs*>(lhs->m_instance) = std::move(*static_cast<T_rhs*>(rhs->m_instance));
+        *static_cast<T_rhs*>(lhs->interface()) = std::move(*static_cast<T_rhs*>(rhs->interface()));
     }
     else
     {
-        if (lhs->m_instance)
+        lhs->destruct();
+        if (rhs->isSpecified())
         {
-            lhs->m_instance->~T_base();
-            lhs->m_instance = nullptr;
-        }
-        if (rhs->m_instance)
-        {
-            lhs->m_instance = new (lhs->m_storage) T_rhs(std::move(*static_cast<T_rhs*>(rhs->m_instance)));
+            new (lhs->m_storage) T_rhs(std::move(*static_cast<T_rhs*>(rhs->interface())));
         }
     }
     lhs->m_typeRetention.id = rhs->m_typeRetention.id;
-    rhs->m_typeRetention.id = nullptr;
+    rhs->m_typeRetention.id = UNSPECIFIED_ID;
     lhs->m_typeRetention.move = rhs->m_typeRetention.move;
-    rhs->m_typeRetention.move = nullptr;
+    // the rhs->m_typeRetention.move is intentionally not set to UNSPECIFIED_MOVE to be able to detect if the dtor needs
+    // to be called
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
@@ -89,7 +86,7 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
 
     destruct();
 
-    m_instance = new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
+    new (m_storage) T(std::forward<CTorArgs>(ctorArgs)...);
     m_typeRetention.id = &TypeRetention::template polymorphId<T>;
     m_typeRetention.move = &TypeRetention::template mover<Polymorph, Interface, T>;
 }
@@ -97,29 +94,54 @@ void Polymorph<Interface, TypeSize, TypeAlignment>::emplace(CTorArgs&&... ctorAr
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
 void Polymorph<Interface, TypeSize, TypeAlignment>::destruct() noexcept
 {
-    if (m_instance != nullptr)
+    if (isSpecified() || m_typeRetention.move != UNSPECIFIED_MOVE)
     {
-        m_instance->~Interface();
-        m_instance = nullptr;
+        interface()->~Interface();
+        m_typeRetention.id = UNSPECIFIED_ID;
+        m_typeRetention.move = UNSPECIFIED_MOVE;
     }
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
 bool Polymorph<Interface, TypeSize, TypeAlignment>::isSpecified() const noexcept
 {
-    return m_instance != nullptr;
+    return m_typeRetention.id != UNSPECIFIED_ID;
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-Interface* Polymorph<Interface, TypeSize, TypeAlignment>::operator->() const noexcept
+Interface* Polymorph<Interface, TypeSize, TypeAlignment>::interface() noexcept
 {
-    return m_instance;
+    return reinterpret_cast<Interface*>(m_storage);
 }
 
 template <typename Interface, size_t TypeSize, size_t TypeAlignment>
-Interface& Polymorph<Interface, TypeSize, TypeAlignment>::operator*() const noexcept
+const Interface* Polymorph<Interface, TypeSize, TypeAlignment>::interface() const noexcept
 {
-    return *m_instance;
+    return reinterpret_cast<const Interface*>(m_storage);
+}
+
+template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+Interface* Polymorph<Interface, TypeSize, TypeAlignment>::operator->() noexcept
+{
+    return interface();
+}
+
+template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+const Interface* Polymorph<Interface, TypeSize, TypeAlignment>::operator->() const noexcept
+{
+    return interface();
+}
+
+template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+Interface& Polymorph<Interface, TypeSize, TypeAlignment>::operator*() noexcept
+{
+    return *interface();
+}
+
+template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+const Interface& Polymorph<Interface, TypeSize, TypeAlignment>::operator*() const noexcept
+{
+    return *interface();
 }
 
 } // namespace cxx

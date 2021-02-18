@@ -135,36 +135,46 @@ class Polymorph
 
     /// Returns a pointer to the underlying instance
     /// @return pointer to the underlying instance or nullptr if there is no valid instance
-    Interface* operator->() const noexcept;
+    Interface* operator->() noexcept;
+
+    /// Returns a pointer to the underlying instance
+    /// @return pointer to the underlying instance or nullptr if there is no valid instance
+    const Interface* operator->() const noexcept;
 
     /// Returns a reference to the underlying instance. If there is no valid instance, the behaviour is undefined
     /// @return reference to the underlying instance
-    Interface& operator*() const noexcept;
+    Interface& operator*() noexcept;
+
+    /// Returns a reference to the underlying instance. If there is no valid instance, the behaviour is undefined
+    /// @return reference to the underlying instance
+    const Interface& operator*() const noexcept;
 
   private:
-      struct TypeRetention
-      {
-          template <typename T>
-          static void polymorphId() noexcept;
+    static constexpr void (*UNSPECIFIED_ID)(){nullptr};
+    static constexpr void (*UNSPECIFIED_MOVE)(Polymorph*, Polymorph*){nullptr};
 
-          template <typename P, typename T_base, typename T_rhs>
-          static void mover(P* lhs, P* rhs) noexcept;
-
-          void (*id)(){nullptr};
-          void (*move)(Polymorph*, Polymorph*){nullptr};
-      };
-
-    // helper struct used for situation where the object must be defined but unspecified like after a move
-    struct Unspecified
+    // helper struct to restore some type information from the type erasure
+    struct TypeRetention
     {
+        template <typename T>
+        static void polymorphId() noexcept;
+
+        template <typename P, typename T_base, typename T_rhs>
+        static void mover(P* lhs, P* rhs) noexcept;
+
+        void (*id)(){UNSPECIFIED_ID};
+        void (*move)(Polymorph*, Polymorph*){UNSPECIFIED_MOVE};
     };
+
+    Interface* interface() noexcept;
+
+    const Interface* interface() const noexcept;
 
     void destruct() noexcept;
 
   private:
-    alignas(TypeAlignment) uint8_t m_storage[TypeSize];
-    Interface* m_instance{nullptr};
     TypeRetention m_typeRetention;
+    alignas(TypeAlignment) uint8_t m_storage[TypeSize];
 };
 
 } // namespace cxx
