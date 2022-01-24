@@ -243,5 +243,13 @@ log::LogStream& operator<<(log::LogStream& stream, const ServiceDescription& ser
     return stream;
 }
 
+log::ng::LogStream& operator<<(log::ng::LogStream& stream, const ServiceDescription& service) noexcept
+{
+    /// @todo #415 Add classHash, scope and interface
+    stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getInstanceIDString()
+           << ", Event: " << service.getEventIDString();
+    return stream;
+}
+
 } // namespace capro
 } // namespace iox

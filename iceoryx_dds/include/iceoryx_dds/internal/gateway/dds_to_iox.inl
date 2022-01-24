@@ -107,8 +107,8 @@ DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescr
         auto reader = channel.getExternalTerminal();
         publisher->offer();
         reader->connect();
-        iox::LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
-                        << service.getInstanceIDString() << ", " << service.getEventIDString() << "}";
+        LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
+                   << service.getInstanceIDString() << ", " << service.getEventIDString() << "}";
     });
 }
 

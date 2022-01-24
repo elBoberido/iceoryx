@@ -188,6 +188,7 @@ std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service
 /// @param[in] service ServiceDescription that shall be converted
 /// @return the reference to `stream` which was provided as input parameter
 log::LogStream& operator<<(log::LogStream& stream, const ServiceDescription& service) noexcept;
+log::ng::LogStream& operator<<(log::ng::LogStream& stream, const ServiceDescription& service) noexcept;
 
 } // namespace capro
 } // namespace iox

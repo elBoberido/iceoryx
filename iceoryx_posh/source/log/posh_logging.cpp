@@ -18,7 +18,7 @@
 
 namespace iox
 {
-constexpr char LoggingComponentPosh::Ctx[];
-constexpr char LoggingComponentPosh::Description[];
+// constexpr char LoggingComponentPosh::Ctx[];
+// constexpr char LoggingComponentPosh::Description[];
 
 } // namespace iox

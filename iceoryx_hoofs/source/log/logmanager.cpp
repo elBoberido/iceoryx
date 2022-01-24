@@ -67,6 +67,7 @@ LogLevel LogManager::DefaultLogLevel() const noexcept
 void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutput logLevelOutput) noexcept
 {
     m_defaultLogLevel.store(logLevel, std::memory_order_relaxed);
+    ng::Logger::globalLogLevel.store(static_cast<ng::LogLevel>(logLevel));
 
     for (auto& logger : m_loggers)
     {

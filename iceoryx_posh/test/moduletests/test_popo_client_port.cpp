@@ -929,7 +929,7 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
                                                 iox::ConnectionState::DISCONNECT_REQUESTED};
 
     // disable logging to prevent spamming the console with LogFatal outputs
-    auto logLevelScopeGuard = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
+    // auto logLevelScopeGuard = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
 
     for (auto targetState : ALL_STATES)
     {

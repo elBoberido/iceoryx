@@ -65,48 +65,48 @@ namespace log
 {
 namespace ffbb
 {
-template <typename T>
-static Logger& ComponentLogger() noexcept
-{
-    static auto& logger = createLogger(T::Ctx, T::Description, LogManager::GetLogManager().DefaultLogLevel());
-    return logger;
-}
-
-template <typename T>
-inline LogStream LogFatal() noexcept
-{
-    return ComponentLogger<T>().LogFatal();
-}
-
-template <typename T>
-inline LogStream LogError() noexcept
-{
-    return ComponentLogger<T>().LogError();
-}
-
-template <typename T>
-inline LogStream LogWarn() noexcept
-{
-    return ComponentLogger<T>().LogWarn();
-}
-
-template <typename T>
-inline LogStream LogInfo() noexcept
-{
-    return ComponentLogger<T>().LogInfo();
-}
-
-template <typename T>
-inline LogStream LogDebug() noexcept
-{
-    return ComponentLogger<T>().LogDebug();
-}
-
-template <typename T>
-inline LogStream LogVerbose() noexcept
-{
-    return ComponentLogger<T>().LogVerbose();
-}
+// template <typename T>
+// static Logger& ComponentLogger() noexcept
+// {
+//     static auto& logger = createLogger(T::Ctx, T::Description, LogManager::GetLogManager().DefaultLogLevel());
+//     return logger;
+// }
+//
+// template <typename T>
+// inline LogStream LogFatal() noexcept
+// {
+//     return ComponentLogger<T>().LogFatal();
+// }
+//
+// template <typename T>
+// inline LogStream LogError() noexcept
+// {
+//     return ComponentLogger<T>().LogError();
+// }
+//
+// template <typename T>
+// inline LogStream LogWarn() noexcept
+// {
+//     return ComponentLogger<T>().LogWarn();
+// }
+//
+// template <typename T>
+// inline LogStream LogInfo() noexcept
+// {
+//     return ComponentLogger<T>().LogInfo();
+// }
+//
+// template <typename T>
+// inline LogStream LogDebug() noexcept
+// {
+//     return ComponentLogger<T>().LogDebug();
+// }
+//
+// template <typename T>
+// inline LogStream LogVerbose() noexcept
+// {
+//     return ComponentLogger<T>().LogVerbose();
+// }
 } // namespace ffbb
 } // namespace log
 } // namespace iox

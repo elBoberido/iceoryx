@@ -16,9 +16,9 @@
 
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 
-namespace iox
-{
-constexpr char LoggingComponentHoofs::Ctx[];
-constexpr char LoggingComponentHoofs::Description[];
-
-} // namespace iox
+// namespace iox
+// {
+// constexpr char LoggingComponentHoofs::Ctx[];
+// constexpr char LoggingComponentHoofs::Description[];
+//
+// } // namespace iox

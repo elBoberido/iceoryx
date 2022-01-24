@@ -64,6 +64,7 @@ LogLevel Logger::GetLogLevel() const noexcept
 void Logger::SetLogLevel(const LogLevel logLevel) noexcept
 {
     m_logLevel.store(logLevel, std::memory_order_relaxed);
+    ng::Logger::globalLogLevel.store(static_cast<ng::LogLevel>(logLevel));
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -90,41 +91,41 @@ void Logger::SetLogMode(const LogMode logMode) noexcept
     }
 }
 
-// NOLINTNEXTLINE(readability-identifier-naming)
-LogStream Logger::LogFatal() noexcept
-{
-    return LogStream(*this, LogLevel::kFatal);
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-LogStream Logger::LogError() noexcept
-{
-    return LogStream(*this, LogLevel::kError);
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-LogStream Logger::LogWarn() noexcept
-{
-    return LogStream(*this, LogLevel::kWarn);
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-LogStream Logger::LogInfo() noexcept
-{
-    return LogStream(*this, LogLevel::kInfo);
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-LogStream Logger::LogDebug() noexcept
-{
-    return LogStream(*this, LogLevel::kDebug);
-}
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-LogStream Logger::LogVerbose() noexcept
-{
-    return LogStream(*this, LogLevel::kVerbose);
-}
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// LogStream Logger::LogFatal() noexcept
+// {
+//     return LogStream(*this, LogLevel::kFatal);
+// }
+//
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// LogStream Logger::LogError() noexcept
+// {
+//     return LogStream(*this, LogLevel::kError);
+// }
+//
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// LogStream Logger::LogWarn() noexcept
+// {
+//     return LogStream(*this, LogLevel::kWarn);
+// }
+//
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// LogStream Logger::LogInfo() noexcept
+// {
+//     return LogStream(*this, LogLevel::kInfo);
+// }
+//
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// LogStream Logger::LogDebug() noexcept
+// {
+//     return LogStream(*this, LogLevel::kDebug);
+// }
+//
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// LogStream Logger::LogVerbose() noexcept
+// {
+//     return LogStream(*this, LogLevel::kVerbose);
+// }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 void Logger::Print(const LogEntry& entry) noexcept

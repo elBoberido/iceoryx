@@ -71,5 +71,11 @@ inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value
     stream << asStringLiteral(value);
     return stream;
 }
+
+inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, CaproMessageType value) noexcept
+{
+    stream << asStringLiteral(value);
+    return stream;
+}
 } // namespace capro
 } // namespace iox

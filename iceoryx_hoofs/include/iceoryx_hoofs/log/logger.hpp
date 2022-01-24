@@ -68,18 +68,18 @@ class Logger
     // NOLINTNEXTLINE(readability-identifier-naming)
     bool IsEnabled(const LogLevel logLevel) const noexcept;
 
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    LogStream LogFatal() noexcept;
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    LogStream LogError() noexcept;
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    LogStream LogWarn() noexcept;
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    LogStream LogInfo() noexcept;
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    LogStream LogDebug() noexcept;
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    LogStream LogVerbose() noexcept;
+    //     // NOLINTNEXTLINE(readability-identifier-naming)
+    //     LogStream LogFatal() noexcept;
+    //     // NOLINTNEXTLINE(readability-identifier-naming)
+    //     LogStream LogError() noexcept;
+    //     // NOLINTNEXTLINE(readability-identifier-naming)
+    //     LogStream LogWarn() noexcept;
+    //     // NOLINTNEXTLINE(readability-identifier-naming)
+    //     LogStream LogInfo() noexcept;
+    //     // NOLINTNEXTLINE(readability-identifier-naming)
+    //     LogStream LogDebug() noexcept;
+    //     // NOLINTNEXTLINE(readability-identifier-naming)
+    //     LogStream LogVerbose() noexcept;
 
   protected:
     Logger(const std::string& ctxId, const std::string& ctxDescription, const LogLevel appLogLevel) noexcept;

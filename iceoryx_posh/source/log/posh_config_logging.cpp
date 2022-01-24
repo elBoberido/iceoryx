@@ -20,7 +20,7 @@ namespace iox
 {
 namespace config
 {
-constexpr char LoggingComponent::Ctx[];
-constexpr char LoggingComponent::Description[];
+// constexpr char LoggingComponent::Ctx[];
+// constexpr char LoggingComponent::Description[];
 } // namespace config
 } // namespace iox

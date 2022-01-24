@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_HPP
 #define IOX_HOOFS_LOG_LOGSTREAM_HPP
 
+#include "iceoryx_hoofs/log/ng/logstream.hpp"
+
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/log/logcommon.hpp"
 

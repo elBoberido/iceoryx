@@ -65,6 +65,7 @@ inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) no
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept;
+inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, CaproMessageType value) noexcept;
 
 enum class CaproServiceType : uint8_t
 {

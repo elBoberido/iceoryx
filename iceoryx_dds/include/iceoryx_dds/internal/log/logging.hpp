@@ -20,32 +20,32 @@
 
 #include "iceoryx_hoofs/log/logging_free_function_building_block.hpp"
 
-namespace iox
-{
-namespace dds
-{
-struct DDSLoggingComponent
-{
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    static constexpr char Ctx[] = "DDS";
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    static constexpr char Description[] = "Log context of the DDS module.";
-};
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogFatal = iox::log::ffbb::LogFatal<DDSLoggingComponent>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogError = iox::log::ffbb::LogError<DDSLoggingComponent>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogWarn = iox::log::ffbb::LogWarn<DDSLoggingComponent>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogInfo = iox::log::ffbb::LogInfo<DDSLoggingComponent>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogDebug = iox::log::ffbb::LogDebug<DDSLoggingComponent>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<DDSLoggingComponent>;
-
-} // namespace dds
-} // namespace iox
+// namespace iox
+// {
+// namespace dds
+// {
+// struct DDSLoggingComponent
+// {
+//     // NOLINTNEXTLINE(readability-identifier-naming)
+//     static constexpr char Ctx[] = "DDS";
+//     // NOLINTNEXTLINE(readability-identifier-naming)
+//     static constexpr char Description[] = "Log context of the DDS module.";
+// };
+//
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// static constexpr auto LogFatal = iox::log::ffbb::LogFatal<DDSLoggingComponent>;
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// static constexpr auto LogError = iox::log::ffbb::LogError<DDSLoggingComponent>;
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// static constexpr auto LogWarn = iox::log::ffbb::LogWarn<DDSLoggingComponent>;
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// static constexpr auto LogInfo = iox::log::ffbb::LogInfo<DDSLoggingComponent>;
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// static constexpr auto LogDebug = iox::log::ffbb::LogDebug<DDSLoggingComponent>;
+// // NOLINTNEXTLINE(readability-identifier-naming)
+// static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<DDSLoggingComponent>;
+//
+// } // namespace dds
+// } // namespace iox
 
 #endif // IOX_DDS_LOG_LOGGING_HPP

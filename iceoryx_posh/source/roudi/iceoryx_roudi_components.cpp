@@ -31,7 +31,7 @@ IceOryxRouDiComponents::IceOryxRouDiComponents(const RouDiConfig_t& roudiConfig)
         runtime::IpcInterfaceBase::cleanupOutdatedIpcChannel(roudi::IPC_CHANNEL_ROUDI_NAME);
 
         rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
-            LogFatal() << "Could not create SharedMemory! Error: " << error;
+            LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error);
             errorHandler(PoshError::ROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, iox::ErrorLevel::FATAL);
         });
         return &rouDiMemoryManager;

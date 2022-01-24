@@ -100,7 +100,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
 
         registerSigHandler();
 
-        LogVerbose() << "Command line parameters are:\n" << cmdLineArgs;
+        LogVerbose() << "Command line parameters are:\n"; // << cmdLineArgs;
     }
 }
 

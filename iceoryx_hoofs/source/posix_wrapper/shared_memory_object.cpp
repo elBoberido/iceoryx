@@ -53,10 +53,11 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                    << ", sizeInBytes = " << m_memorySizeInBytes
                    << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
                    << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)] << ", baseAddressHint = "
-                   << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
-                                           : log::HexFormat(static_cast<uint64_t>(0U)))
-                   << ((m_baseAddressHint) ? "" : " (no hint set)")
-                   << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
+            // << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
+            //                         : log::HexFormat(static_cast<uint64_t>(0U)))
+            // << ((m_baseAddressHint) ? "" : " (no hint set)")
+            // << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
+            ;
     };
 
     auto sharedMemory = SharedMemoryBuilder()
