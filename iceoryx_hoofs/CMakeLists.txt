@@ -65,6 +65,7 @@ iox_add_library(
         source/log/logging.cpp
         source/log/logmanager.cpp
         source/log/logstream.cpp
+    source/log/ng/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/message_queue.cpp
