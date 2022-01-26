@@ -19,10 +19,10 @@
 #define IOX_HOOFS_LOG_NG_LOGGER_HPP
 
 #include <atomic>
-
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <string>
 
 namespace iox
 {
@@ -64,6 +64,13 @@ constexpr const char* LOG_LEVEL_TEXT[] = {
 
 class Logger
 {
+  private:
+    template <uint32_t N>
+    static constexpr uint32_t stringLength(const char (&)[N])
+    {
+        return N;
+    }
+
   public:
     static Logger& get()
     {
@@ -71,6 +78,8 @@ class Logger
         return logger;
     }
 
+    // TODO split this into `setupNewLog(file, line, function, logLevel, timestamp)`
+    //      and `putString(const char*)`, `putU64(const uint64_t)`...
     virtual void log(const char* file,
                      const int line,
                      const char* function,
@@ -78,27 +87,59 @@ class Logger
                      timespec timestamp,
                      std::string message)
     {
-        std::stringstream buffer;
-
         std::time_t time = timestamp.tv_sec;
 
         // TODO: std::localtime is thread-unsafe -> replace with localtime_r or strftime
         auto* timeInfo = std::localtime(&time);
 
+        constexpr const char TIME_FORMAT[]{"2002-02-20 11:11:11"};
+        constexpr uint32_t ZERO_TERMINATION{1U};
+        constexpr uint32_t YEAR_1000000_PROBLEM{2U}; // in case iceoryx is still in use, please change to 3
+        constexpr auto TIMESTAMP_BUFFER_SIZE{Logger::stringLength(TIME_FORMAT) + YEAR_1000000_PROBLEM
+                                             + ZERO_TERMINATION};
+        char timestampString[TIMESTAMP_BUFFER_SIZE];
+        strftime(timestampString,
+                 TIMESTAMP_BUFFER_SIZE - 1,
+                 "%Y-%m-%d %H:%M:%S",
+                 timeInfo); // TODO check whether the -1 is required
+
+
         constexpr auto MILLISECS_PER_SECOND{1000};
         auto milliseconds = timestamp.tv_nsec % MILLISECS_PER_SECOND;
-        buffer << "\033[0;90m" << std::put_time(timeInfo, "%Y-%m-%d %H:%M:%S");
-        buffer << "." << std::right << std::setfill('0') << std::setw(3) << milliseconds << " ";
-        buffer << LOG_LEVEL_COLOR[static_cast<uint8_t>(logLevel)] << LOG_LEVEL_TEXT[static_cast<uint8_t>(logLevel)];
+
         // TODO do we also want to always log the iceoryx version and commit sha? Maybe do that only in
         // `initLogger` with LogDebug
         // buffer << "\033[0;90m " << file << ':' << line << " ‘" << function << "’";
         static_cast<void>(file);
         static_cast<void>(line);
         static_cast<void>(function);
-        buffer << "\033[m: " << message << std::endl;
-        std::clog << buffer.str();
+
+        // TODO check whether snprintf_s would be the better solution
+        // TODO double check whether snprintf is correctly used
+        auto retVal = snprintf(m_buffer,
+                               NULL_TERMINATED_BUFFER_SIZE,
+                               "\033[0;90m%s.%03ld %s%s\033[m: %s",
+                               timestampString,
+                               milliseconds,
+                               LOG_LEVEL_COLOR[static_cast<uint8_t>(logLevel)],
+                               LOG_LEVEL_TEXT[static_cast<uint8_t>(logLevel)],
+                               message.c_str());
+        if (retVal >= 0)
+        {
+            m_bufferWriteIndex = static_cast<uint32_t>(retVal);
+        }
+        else
+        {
+            // TODO an error occurred; what to do next?
+        }
     }
+
+    virtual void flush()
+    {
+        std::puts(m_buffer);
+        m_buffer[0] = 0;
+        m_bufferWriteIndex = 0U;
+    };
 
   protected:
     Logger() = default;
@@ -122,7 +163,10 @@ class Logger
     static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 
   private:
-    // TODO thread local storage for buffer and use snprintf
+    static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
+    static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
+    thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
+    thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
     // TODO thread local storage with thread id
 };
 

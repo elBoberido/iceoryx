@@ -53,6 +53,7 @@ class LogStream
         {
             m_flushed = true;
             Logger::get().log(m_file, m_line, m_function, m_logLevel, m_timestamp, m_message);
+            Logger::get().flush();
             m_message.clear();
         }
     }
