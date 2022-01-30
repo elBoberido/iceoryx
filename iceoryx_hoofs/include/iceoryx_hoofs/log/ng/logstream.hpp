@@ -38,6 +38,7 @@ class LogStream
     {
         if (clock_gettime(CLOCK_REALTIME, &m_timestamp) != 0)
         {
+            m_timestamp = {0, 0};
             // intentionally do nothing since a timestamp from 01.01.1970 already indicates  an issue with the clock
         }
     }
@@ -52,7 +53,7 @@ class LogStream
         if (!m_flushed)
         {
             m_flushed = true;
-            Logger::get().log(m_file, m_line, m_function, m_logLevel, m_timestamp, m_message);
+            Logger::get().log(m_file, m_line, m_function, m_logLevel, m_timestamp, m_message.c_str());
             Logger::get().flush();
             m_message.clear();
         }
