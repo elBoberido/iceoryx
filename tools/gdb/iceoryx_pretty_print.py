@@ -47,10 +47,25 @@ class IoxCxxStringPrinter:
         capacity = str(self.val.type).replace('iox::cxx::string<', '')[:-1]
         return '"' + content + '"' + ' (size: ' + size  + '; capacity: ' + capacity + ')'
 
+class IoxCxxOptionalPrinter:
+    "Print an iox::cxx::optional"
+
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        if self.val['m_hasValue']:
+            typename = str(self.val.type)[len('iox::cxx::optional<'):-1]
+            typedPointer = self.val['m_data'].address.cast(gdb.lookup_type(typename).pointer())
+            return '{' + str(typedPointer.dereference()) + '}'
+        else:
+            return "iox::cxx::nullopt"
+
 def iox_pretty_print(val):
     # TODO check why this does not work
     #if re.search('iox::cxx::string<\d+>', text): return IoxCxxStringPrinter(val)
     if str(val.type).startswith('iox::cxx::string'): return IoxCxxStringPrinter(val)
+    if str(val.type).startswith('iox::cxx::optional'): return IoxCxxOptionalPrinter(val)
     return None
 
 gdb.pretty_printers.append(iox_pretty_print)
