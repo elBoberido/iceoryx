@@ -71,7 +71,7 @@ class Logger
     }
 
     template <typename T>
-    void unused(T&&) const
+    inline void unused(T&&) const
     {
     }
 
@@ -82,16 +82,16 @@ class Logger
         return logger;
     }
 
-    // TODO split this into `setupNewLogMessage(file, line, function, logLevel, timestamp)`
-    //      and `putString(const char*)`, `putU64(const uint64_t)`...
-    virtual void log(const char* file,
-                     const int line,
-                     const char* function,
-                     LogLevel logLevel,
-                     timespec timestamp,
-                     const char* message)
+    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
     {
         // TODO check all pointer for nullptr
+
+        timespec timestamp{0, 0};
+        if (clock_gettime(CLOCK_REALTIME, &timestamp) != 0)
+        {
+            timestamp = {0, 0};
+            // intentionally do nothing since a timestamp from 01.01.1970 already indicates  an issue with the clock
+        }
 
         time_t time = timestamp.tv_sec;
         struct tm calendarData;
@@ -130,18 +130,61 @@ class Logger
 
         // TODO check whether snprintf_s would be the better solution
         // TODO double check whether snprintf is correctly used
-        auto retVal =
-            snprintf(m_buffer,
-                     NULL_TERMINATED_BUFFER_SIZE,
-                     "\033[0;90m%s.%03ld %s%s\033[m: %s",
-                     timestampString,
-                     milliseconds,
-                     LOG_LEVEL_COLOR[static_cast<uint8_t>(logLevel)],
-                     LOG_LEVEL_TEXT[static_cast<uint8_t>(logLevel)],
-                     message); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        auto retVal = snprintf(m_buffer,
+                               NULL_TERMINATED_BUFFER_SIZE,
+                               "\033[0;90m%s.%03ld %s%s\033[m: ",
+                               timestampString,
+                               milliseconds,
+                               LOG_LEVEL_COLOR[static_cast<uint8_t>(logLevel)],
+                               LOG_LEVEL_TEXT[static_cast<uint8_t>(logLevel)]);
         if (retVal >= 0)
         {
             m_bufferWriteIndex = static_cast<uint32_t>(retVal);
+        }
+        else
+        {
+            // TODO an error occurred; what to do next? call error handler?
+        }
+    }
+
+    virtual void putString(const char* message)
+    {
+        auto retVal =
+            snprintf(&m_buffer[m_bufferWriteIndex],
+                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
+                     "%s",
+                     message); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        if (retVal >= 0)
+        {
+            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
+        }
+        else
+        {
+            // TODO an error occurred; what to do next? call error handler?
+        }
+    }
+
+    // TODO add `putU32(const uint32_t)`, putBool(const bool), ...
+    virtual void putU64(const uint64_t value)
+    {
+        putArithmetik(value, "%lu");
+    }
+    virtual void putI64(const int64_t value)
+    {
+        putArithmetik(value, "%li");
+    }
+
+    template <typename T>
+    inline void putArithmetik(const T value, const char* format)
+    {
+        auto retVal =
+            snprintf(&m_buffer[m_bufferWriteIndex],
+                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
+                     format,
+                     value); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        if (retVal >= 0)
+        {
+            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
         }
         else
         {

@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/log/ng/logger.hpp"
 
-#include <sstream>
+#include <string>
 
 namespace iox
 {
@@ -31,16 +31,8 @@ class LogStream
 {
   public:
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
-        : m_file(file)
-        , m_line(line)
-        , m_function(function)
-        , m_logLevel(logLevel)
     {
-        if (clock_gettime(CLOCK_REALTIME, &m_timestamp) != 0)
-        {
-            m_timestamp = {0, 0};
-            // intentionally do nothing since a timestamp from 01.01.1970 already indicates  an issue with the clock
-        }
+        Logger::get().setupNewLogMessage(file, line, function, logLevel);
     }
 
     virtual ~LogStream() noexcept
@@ -52,46 +44,43 @@ class LogStream
     {
         if (!m_flushed)
         {
-            m_flushed = true;
-            Logger::get().log(m_file, m_line, m_function, m_logLevel, m_timestamp, m_message.c_str());
             Logger::get().flush();
-            m_message.clear();
+            m_flushed = true;
         }
     }
 
     LogStream& operator<<(const char* cstr) noexcept
     {
-        // TODO call Logger.append(cstr);
-        m_message.append(cstr);
+        Logger::get().putString(cstr);
         m_flushed = false;
         return *this;
     }
 
     LogStream& operator<<(const std::string& str) noexcept
     {
-        m_message.append(str);
+        Logger::get().putString(str.c_str());
         m_flushed = false;
         return *this;
     }
 
-    template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
+    template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        std::stringstream ss;
-        ss << +val;
-        m_message.append(ss.str());
+        Logger::get().putI64(val);
+        m_flushed = false;
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
+    LogStream& operator<<(const T val) noexcept
+    {
+        Logger::get().putU64(val);
         m_flushed = false;
         return *this;
     }
 
   private:
     bool m_flushed{false};
-    const char* m_file;
-    const int m_line;
-    const char* m_function;
-    LogLevel m_logLevel;
-    timespec m_timestamp{0, 0};
-    std::string m_message; // this should be obtained from the logger
 };
 
 
