@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <mutex>
 
 namespace iox
 {
@@ -75,10 +76,47 @@ class Logger
     {
     }
 
+  protected:
+    static Logger& activeLogger(Logger* newLogger = nullptr)
+    {
+        std::mutex mtx;
+        std::lock_guard<std::mutex> lock(mtx);
+        static uint64_t loggerChangeCounter{0};
+        ++loggerChangeCounter;
+        static Logger defaultLogger;
+        static Logger* logger{&defaultLogger};
+
+        if (newLogger)
+        {
+            // TODO if necessary, this could be done in a way that threads which are already logging can detect a new
+            // logger, e.g.:
+            //    - loggerChangeCounter as atomic in the Logger itself
+            //    - Logger::get has a thread_local copy of this value and checks if the global counter changes
+            //    - Logger::get stores a pointer instead of a reference and calls Logger::activeLogger() if the counter
+            //    are not equal
+            // changing the logger should still notify the user with LogLevel::Debug if the logger was changed more than
+            // once since this indicates that someone is tampering with the logger
+            if (loggerChangeCounter > 1)
+            {
+                logger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
+                logger->putString(
+                    "Logger already used before changing the backend! Some threads will not use the new backend!");
+                logger->flush();
+                newLogger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
+                newLogger->putString(
+                    "Logger already used before changing the backend! Some threads will not use the new backend!");
+                newLogger->flush();
+            }
+            logger = newLogger;
+        }
+
+        return *logger;
+    }
+
   public:
     static Logger& get()
     {
-        static Logger logger;
+        thread_local static Logger& logger = Logger::activeLogger();
         return logger;
     }
 
