@@ -256,7 +256,7 @@ class Logger
     // this is different than GLOBAL_LOG_ALL since globalLogLevel could still be set to off
     static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 
-  private:
+  protected:
     static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
     static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
     thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];

@@ -14,19 +14,58 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_TESTING_LOGGER_HPP
+#define IOX_HOOFS_TESTING_LOGGER_HPP
+
 #include "iceoryx_hoofs/log/ng/logger.hpp"
+
+#include "test.hpp"
+
+#include <mutex>
 
 namespace iox
 {
 namespace testing
 {
+class LogPrinter : public ::testing::EmptyTestEventListener
+{
+    void OnTestStart(const ::testing::TestInfo&) override;
+    void OnTestPartResult(const ::testing::TestPartResult& result) override;
+};
+
+
 class Logger : public iox::log::ng::Logger
 {
   public:
     static void activateTestLogger()
     {
         static Logger logger;
+        logger.globalLogLevel = iox::log::ng::LogLevel::DEBUG;
         iox::log::ng::Logger::activeLogger(&logger);
+
+        auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
+        listeners.Append(new LogPrinter);
+    }
+
+    void clearLogBuffer()
+    {
+        std::lock_guard<std::mutex> lock(m_logBufferMutex);
+        m_logBuffer.clear();
+    }
+
+    void printLogBuffer()
+    {
+        std::lock_guard<std::mutex> lock(m_logBufferMutex);
+        if (m_logBuffer.empty())
+        {
+            return;
+        }
+        puts("#### Log start ####");
+        for (const auto& log : m_logBuffer)
+        {
+            puts(log.c_str());
+        }
+        puts("#### Log end ####");
     }
 
   private:
@@ -40,15 +79,34 @@ class Logger : public iox::log::ng::Logger
 
     void flush() override
     {
-        // TODO, store the log messages in a ring-buffer and add a static function to flush all of that
-        // the ring-buffer will be cleared in the global set-up and flushed in the global tear-down if there was an
-        // error
-        // https://google.github.io/googletest/advanced.html#global-set-up-and-tear-down
+        std::lock_guard<std::mutex> lock(m_logBufferMutex);
+        m_logBuffer.emplace_back(m_buffer, m_bufferWriteIndex);
 
-        // do nothing for now
         // iox::log::ng::Logger::flush();
+
+        m_buffer[0] = 0;
+        m_bufferWriteIndex = 0U;
     }
+
+    // TODO use smart_lock
+    std::mutex m_logBufferMutex;
+    std::vector<std::string> m_logBuffer;
 };
+
+void LogPrinter::OnTestStart(const ::testing::TestInfo&)
+{
+    dynamic_cast<Logger&>(iox::log::ng::Logger::get()).clearLogBuffer();
+}
+
+void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
+{
+    if (result.failed())
+    {
+        dynamic_cast<Logger&>(iox::log::ng::Logger::get()).printLogBuffer();
+    }
+}
 
 } // namespace testing
 } // namespace iox
+
+#endif // IOX_HOOFS_TESTING_LOGGER_HPP
