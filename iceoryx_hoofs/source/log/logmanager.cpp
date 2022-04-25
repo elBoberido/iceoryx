@@ -76,8 +76,11 @@ void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutpu
 
     if (logLevelOutput == LogLevelOutput::kDisplayLogLevel)
     {
-        std::clog << "Log level set to: " << LogLevelColor[cxx::enumTypeAsUnderlyingType(logLevel)]
-                  << LogLevelText[cxx::enumTypeAsUnderlyingType(logLevel)] << "\033[m" << std::endl;
+        // intentionally not used the macro to not suppress this output
+        // TODO is this a good idea?
+        ng::LogStream(__FILE__, __LINE__, __PRETTY_FUNCTION__, ng::LogLevel::INFO)
+            << "Log level set to: " << LogLevelColor[cxx::enumTypeAsUnderlyingType(logLevel)]
+            << LogLevelText[cxx::enumTypeAsUnderlyingType(logLevel)] << "\033[m";
     }
 }
 
