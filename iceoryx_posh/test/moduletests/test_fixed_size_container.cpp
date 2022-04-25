@@ -38,18 +38,12 @@ class FixedSizeContainer_test : public Test
     {
     }
 
-    virtual void SetUp()
+    virtual void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    virtual void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 };
 

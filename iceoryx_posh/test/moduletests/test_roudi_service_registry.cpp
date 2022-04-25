@@ -127,18 +127,12 @@ class ServiceRegistry_test : public Test
 {
   public:
     using ServiceDescription = iox::capro::ServiceDescription;
-    virtual void SetUp()
+    virtual void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    virtual void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     uint64_t countServices()
@@ -172,7 +166,7 @@ TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturn
     ::testing::Test::RecordProperty("TEST_ID", "3a050209-01d8-4d0e-9e70-c0662b9dbe76");
     this->find(iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard);
 
-    EXPECT_THAT(this->searchResult.size(), Eq(0));
+    EXPECT_THAT(this->searchResult.size(), Eq(0U));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)

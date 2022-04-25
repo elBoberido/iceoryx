@@ -50,13 +50,12 @@ constexpr char goodName[] = "channel_test";
 class UnixDomainSocket_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         auto serverResult = UnixDomainSocket::create(
             goodName, IpcChannelSide::SERVER, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
-        CaptureStderr();
 
         auto clientResult = UnixDomainSocket::create(
             goodName, IpcChannelSide::CLIENT, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
@@ -64,13 +63,8 @@ class UnixDomainSocket_test : public Test
         client = std::move(clientResult.value());
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        std::string output = GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ~UnixDomainSocket_test()

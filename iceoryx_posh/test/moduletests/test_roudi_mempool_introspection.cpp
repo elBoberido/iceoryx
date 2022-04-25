@@ -45,7 +45,7 @@ CallChecker& callChecker()
 class MockPublisherPortUserAccess : public MockPublisherPortUser
 {
   public:
-    void offer()
+    void offer() noexcept
     {
         callChecker().offer();
     }
@@ -118,20 +118,14 @@ class MemPoolIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    virtual void SetUp() override
     {
-        internal::CaptureStdout();
         SegmentMock segmentMock;
         m_segmentManager_mock.m_segmentContainer.push_back(segmentMock);
     }
 
-    virtual void TearDown()
+    virtual void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     template <typename MemPoolInfoStruct>
@@ -212,9 +206,12 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
     MemPoolInfoContainer memPoolInfoContainer;
     initMemPoolInfoContainer(memPoolInfoContainer);
 
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers()).WillRepeatedly(Return(false));
     EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_, _, _, _)).Times(0);
 
     introspectionAccess.send();
+
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).Times(1);
 }
 
 /// @todo test with multiple segments and also test the mempool info from RouDiInternalMemoryManager
@@ -276,6 +273,8 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.toMilliseconds())); // the thread should sleep, if not, we have 12 runs
     introspectionAccess.stop();
+
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).Times(1);
 });
 
 } // namespace

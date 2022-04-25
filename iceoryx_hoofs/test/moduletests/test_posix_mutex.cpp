@@ -33,17 +33,11 @@ class Mutex_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     void signalThreadReady()
@@ -111,7 +105,6 @@ TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
 TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4bb77e54-4d1e-4d1e-9138-a284638aab8c");
-    std::string output = internal::GetCapturedStderr();
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
     EXPECT_DEATH(
@@ -120,8 +113,6 @@ TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
             mtx.lock();
         },
         ".*");
-
-    internal::CaptureStderr();
 }
 #endif
 

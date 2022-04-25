@@ -28,17 +28,11 @@ using namespace iox::cxx;
 class algorithm_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
-        testing::internal::CaptureStderr();
     }
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = testing::internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 };
 

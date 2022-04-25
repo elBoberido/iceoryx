@@ -58,27 +58,21 @@ class IpcChannel_test : public Test
   public:
     using IpcChannelType = T;
 
-    void SetUp()
+    void SetUp() override
     {
         IOX_DISCARD_RESULT(IpcChannelType::unlinkIfExists(goodName));
 
         auto serverResult = IpcChannelType::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
-        internal::CaptureStderr();
 
         auto clientResult = IpcChannelType::create(goodName, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.value());
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ~IpcChannel_test()

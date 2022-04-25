@@ -50,19 +50,13 @@ class PoshRuntime_test : public Test
     {
     }
 
-    virtual void SetUp()
+    virtual void SetUp() override
     {
-        testing::internal::CaptureStdout();
-    };
+    }
 
-    virtual void TearDown()
+    virtual void TearDown() override
     {
-        std::string output = testing::internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
-    };
+    }
 
     void InterOpWait()
     {

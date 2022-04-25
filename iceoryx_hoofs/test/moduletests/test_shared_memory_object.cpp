@@ -29,25 +29,17 @@ class SharedMemoryObject_Test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     void PerformDeathTest(const std::function<void()>& deathTest)
     {
         std::set_terminate([]() { std::cout << "", std::abort(); });
 
-        internal::GetCapturedStderr();
         EXPECT_DEATH({ deathTest(); }, ".*");
-        internal::CaptureStderr();
     }
 };
 

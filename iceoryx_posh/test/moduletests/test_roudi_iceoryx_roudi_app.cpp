@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/platform/getopt.hpp"
+#include "iceoryx_hoofs/testing/logger.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
@@ -34,17 +35,20 @@ using iox::roudi::IceOryxRouDiApp;
 using namespace iox::config;
 using namespace iox;
 
+// TODO this should be moved to the testing lib and combined with the implementation in test_logger.cpp
+// test_unit_duration and test_roudi_cmd_line_parser_config_file_option.cpp could then also use this class
 class OutputBuffer
 {
   public:
-    OutputBuffer()
+    OutputBuffer(std::ostream& stream)
+        : m_stream(stream)
     {
-        m_oldBuffer = std::clog.rdbuf();
-        std::clog.rdbuf(m_capture.rdbuf());
+        m_oldBuffer = m_stream.rdbuf();
+        m_stream.rdbuf(m_capture.rdbuf());
     }
     ~OutputBuffer()
     {
-        std::clog.rdbuf(m_oldBuffer);
+        m_stream.rdbuf(m_oldBuffer);
     }
 
     std::string str()
@@ -58,6 +62,7 @@ class OutputBuffer
     }
 
   private:
+    std::ostream& m_stream;
     std::stringstream m_capture;
     std::streambuf* m_oldBuffer{nullptr};
 };
@@ -104,7 +109,6 @@ class IceoryxRoudiApp_test : public Test
 
     void SetUp() override
     {
-        outBuffer.clear();
     }
 
     void TearDown() override
@@ -112,9 +116,6 @@ class IceoryxRoudiApp_test : public Test
         // Reset optind to be able to parse again
         optind = 0;
     };
-
-    OutputBuffer outBuffer;
-    const std::regex colorCode{"\\x1B\\[([0-9]*;?)*m"};
 };
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
@@ -228,6 +229,7 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
     args[0] = &appName[0];
     args[1] = &option[0];
 
+    OutputBuffer outBuffer{std::cout};
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_FALSE(cmdLineArgs.has_error());
@@ -235,6 +237,10 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
     EXPECT_FALSE(roudi.getVariableRun());
+    auto output = outBuffer.str();
+    EXPECT_THAT(output, HasSubstr("RouDi version"));
+    EXPECT_THAT(output, HasSubstr("Build date"));
+    EXPECT_THAT(output, HasSubstr("Commit ID"));
 }
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFalse)
@@ -244,6 +250,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
+    const std::string expected = "A RouDiConfig without segments was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
@@ -253,9 +260,11 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), roudiConfig);
 
-    std::string output = std::regex_replace(outBuffer.str(), colorCode, std::string(""));
-
     EXPECT_FALSE(roudi.getVariableRun());
+
+    auto logMessages = iox::testing::Logger::getLogMessages();
+    ASSERT_THAT(logMessages.size(), Eq(1U));
+    EXPECT_THAT(logMessages[0], HasSubstr(expected));
 }
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPoolSetRunVariableToFalse)
@@ -265,6 +274,8 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
+    const std::string expected =
+        "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
@@ -279,9 +290,11 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), roudiConfig);
 
-    std::string output = std::regex_replace(outBuffer.str(), colorCode, std::string(""));
-
     EXPECT_FALSE(roudi.getVariableRun());
+
+    auto logMessages = iox::testing::Logger::getLogMessages();
+    ASSERT_THAT(logMessages.size(), Eq(1U));
+    EXPECT_THAT(logMessages[0], HasSubstr(expected));
 }
 
 } // namespace

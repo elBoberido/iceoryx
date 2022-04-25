@@ -39,7 +39,6 @@ class AccessController_test : public Test
 
     void SetUp()
     {
-        internal::CaptureStderr();
         m_fileStream = fopen(TestFileName, "w");
         m_fileDescriptor = fileno(m_fileStream);
     }
@@ -48,12 +47,6 @@ class AccessController_test : public Test
     {
         fclose(m_fileStream);
         std::remove(TestFileName);
-
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ~AccessController_test()

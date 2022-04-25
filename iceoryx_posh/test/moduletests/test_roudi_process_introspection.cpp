@@ -51,18 +51,12 @@ class ProcessIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    virtual void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    virtual void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& sut)
@@ -197,6 +191,8 @@ TEST_F(ProcessIntrospection_test, thread)
             std::this_thread::sleep_for(std::chrono::milliseconds(15));
             introspectionAccess->removeProcess(PID);
         }
+
+        EXPECT_CALL(introspectionAccess->getPublisherPort().value(), stopOffer()).Times(1);
     }
 }
 

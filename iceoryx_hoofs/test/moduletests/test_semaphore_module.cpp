@@ -63,20 +63,14 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         delete syncSemaphore;
     }
 
-    void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStderr();
         ASSERT_THAT(sut, Ne(nullptr));
         ASSERT_THAT(syncSemaphore, Ne(nullptr));
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     static constexpr unsigned long long TIMING_TEST_TIMEOUT{(100_ms).toNanoseconds()};
@@ -91,18 +85,12 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
 class SemaphoreCreate_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStderr();
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 };
 

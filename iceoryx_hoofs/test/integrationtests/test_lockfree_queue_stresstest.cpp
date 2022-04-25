@@ -334,18 +334,12 @@ class LockFreeQueueStressTest : public ::testing::Test
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
-        // internal::CaptureStdout();
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        if (Test::HasFailure())
-        {
-            // std::string output = internal::GetCapturedStdout();
-            // std::cout << output << std::endl;
-        }
     }
 
     using Queue = T;

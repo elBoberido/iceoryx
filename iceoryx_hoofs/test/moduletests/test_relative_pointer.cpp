@@ -48,7 +48,6 @@ class RelativePointer_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
         memset(memoryPartition, memoryPatternValue, NUMBER_OF_MEMORY_PARTITIONS * SHARED_MEMORY_SIZE);
         ++memoryPatternValue;
     }
@@ -56,11 +55,6 @@ class RelativePointer_test : public Test
     void TearDown() override
     {
         BaseRelativePointer::unregisterAll();
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     uint8_t* partitionPtr(uint32_t partition)
