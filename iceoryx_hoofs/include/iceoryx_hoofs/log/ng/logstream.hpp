@@ -40,6 +40,12 @@ class LogStream
         flush();
     }
 
+    LogStream(const LogStream&) = delete;
+    LogStream(LogStream&&) = delete;
+
+    LogStream& operator=(const LogStream&) = delete;
+    LogStream& operator=(LogStream&&) = delete;
+
     void flush() noexcept
     {
         if (!m_flushed)
@@ -115,15 +121,15 @@ inline bool custom(const char* file, const char* function)
 // - GLOBAL_LOG_ALL || (level <= globalLogLevel && custom) <- this might be the best
 // - GLOBAL_LOG_ALL || level <= globalLogLevel  || custom  <- or this if we pass the log level to the custom filter
 
-#define IOX_LOG_INTERNAL(level)                                                                                        \
-    if (level <= iox::log::ng::Logger::MINIMAL_LOG_LEVEL                                                               \
+#define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
+    if ((level) <= iox::log::ng::Logger::MINIMAL_LOG_LEVEL                                                             \
         && (iox::log::ng::Logger::GLOBAL_LOG_ALL                                                                       \
-            || level <= iox::log::ng::Logger::globalLogLevel.load(std::memory_order_relaxed)                           \
-            || iox::log::ng::custom(__FILE__, __PRETTY_FUNCTION__)))                                                   \
-    iox::log::ng::LogStream(__FILE__, __LINE__, __PRETTY_FUNCTION__, level)
+            || (level) <= iox::log::ng::Logger::globalLogLevel.load(std::memory_order_relaxed)                         \
+            || iox::log::ng::custom(file, function)))                                                                  \
+    iox::log::ng::LogStream(file, line, function, level)
 
 // use this
-#define IOX_LOG(level) IOX_LOG_INTERNAL(iox::log::ng::LogLevel::level)
+#define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __PRETTY_FUNCTION__, iox::log::ng::LogLevel::level)
 
 // not this, because there is no iox prefix and it will easily clash with other macros
 #define LogFatal() IOX_LOG(FATAL)
