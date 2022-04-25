@@ -68,6 +68,20 @@ class Logger : public iox::log::ng::Logger
         puts("#### Log end ####");
     }
 
+    static uint64_t getNumberOfLogMessages()
+    {
+        auto& logger = dynamic_cast<Logger&>(iox::log::ng::Logger::get());
+        std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
+        return logger.m_logBuffer.size();
+    }
+
+    static std::vector<std::string> getLogMessages()
+    {
+        auto& logger = dynamic_cast<Logger&>(iox::log::ng::Logger::get());
+        std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
+        return logger.m_logBuffer;
+    }
+
   private:
     Logger() = default;
 
@@ -93,12 +107,12 @@ class Logger : public iox::log::ng::Logger
     std::vector<std::string> m_logBuffer;
 };
 
-void LogPrinter::OnTestStart(const ::testing::TestInfo&)
+inline void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
     dynamic_cast<Logger&>(iox::log::ng::Logger::get()).clearLogBuffer();
 }
 
-void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
+inline void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
 {
     if (result.failed())
     {
