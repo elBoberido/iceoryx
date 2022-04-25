@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/log/ng/logstream.hpp"
 
 #include <iostream>
 #include <string>
@@ -44,16 +45,12 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
         default:
         case ErrorMode::Inform:
         {
-            std::cerr << "\033[5;31m"
-                      << "Could not open file '" << m_file << "'."
-                      << "\033[0m" << std::endl;
+            IOX_LOG(ERROR) << "Could not open file '" << m_file << "'.";
             return;
         }
         case ErrorMode::Terminate:
         {
-            std::cerr << "\033[5;31m"
-                      << "Could not open file '" << m_file << "'. Exiting!"
-                      << "\033[0m" << std::endl;
+            IOX_LOG(ERROR) << "Could not open file '" << m_file << "'. Exiting!";
             cxx::Ensures(false);
             return;
         }
