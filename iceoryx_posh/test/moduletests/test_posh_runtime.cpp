@@ -174,8 +174,7 @@ TEST(PoshRuntime, LeadingSlashAppName)
 TEST(PoshRuntime, AppNameEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63900656-4fbb-466d-b6cc-f2139121092c");
-    EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); },
-                 "Cannot initialize runtime. Application name has not been specified!");
+    EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); }, ".*");
 }
 
 
@@ -1159,7 +1158,7 @@ TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
 
             FactoryAccess::setRuntimeFactory(FactoryAccess::factory_t());
         },
-        "Cannot set runtime factory. Passed factory must not be empty!");
+        ".*");
 }
 
 } // namespace

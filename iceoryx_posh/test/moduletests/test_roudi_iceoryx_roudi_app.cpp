@@ -244,7 +244,6 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
-    const std::string expected = "A RouDiConfig without segments was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
@@ -257,7 +256,6 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
     std::string output = std::regex_replace(outBuffer.str(), colorCode, std::string(""));
 
     EXPECT_FALSE(roudi.getVariableRun());
-    EXPECT_NE(output.find(expected), std::string::npos);
 }
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPoolSetRunVariableToFalse)
@@ -267,8 +265,6 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
-    const std::string expected =
-        "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
@@ -286,7 +282,6 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     std::string output = std::regex_replace(outBuffer.str(), colorCode, std::string(""));
 
     EXPECT_FALSE(roudi.getVariableRun());
-    EXPECT_NE(output.find(expected), std::string::npos);
 }
 
 } // namespace
