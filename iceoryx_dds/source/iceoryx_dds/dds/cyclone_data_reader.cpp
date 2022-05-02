@@ -99,14 +99,17 @@ iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
     // Ignore Invalid IoxChunkDatagramHeader
     if (nextSampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
-        // auto log = LogError();
-        LogError() << "[CycloneDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
-                   << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize;
-        if (nextSampleSize >= 1)
+        LogError() << [&](auto& log) -> auto&
         {
-            LogError() << "! Potential datagram version is " << static_cast<uint16_t>(nextSamplePayload[0])
-                       << "! Dropped sample!";
-        }
+            log << "[CycloneDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
+                << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize;
+            if (nextSampleSize >= 1)
+            {
+                log << "! Potential datagram version is " << static_cast<uint16_t>(nextSamplePayload[0])
+                    << "! Dropped sample!";
+            }
+            return log;
+        };
         return dropSample();
     }
 

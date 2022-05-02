@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/log/ng/logger.hpp"
 
+#include <functional>
 #include <string>
 
 namespace iox
@@ -62,6 +63,8 @@ class LogStream
         return *this;
     }
 
+    // TODO instead of using std::string we could also accecpt everything with a c_str() method and avoid the
+    // std::string dependency
     LogStream& operator<<(const std::string& str) noexcept
     {
         Logger::get().putString(str.c_str());
@@ -84,6 +87,16 @@ class LogStream
         m_flushed = false;
         return *this;
     }
+
+    // TODO this is something we might want to have in cxx::function_ref to avoid the dependency to std::function
+    using CallableSignature = LogStream&(LogStream&);
+    template <typename Callable,
+              typename = std::enable_if_t<std::is_convertible<Callable&&, std::function<CallableSignature>>::value>>
+    LogStream& operator<<(const Callable&& c)
+    {
+        return c(*this);
+    }
+
 
   private:
     bool m_flushed{false};

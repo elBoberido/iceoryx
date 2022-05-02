@@ -35,8 +35,11 @@ namespace iox
 {
 namespace log
 {
+namespace ng
+{
 class LogStream;
 }
+} // namespace log
 namespace mepoo
 {
 struct MePooConfig;
@@ -80,7 +83,7 @@ class MemoryManager
   private:
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
-    void printMemPoolVector(log::LogStream& log) const noexcept;
+    void printMemPoolVector(log::ng::LogStream& log) const noexcept;
     void addMemPool(posix::Allocator& managementAllocator,
                     posix::Allocator& chunkMemoryAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
