@@ -46,20 +46,28 @@ static void memsetSigbusHandler(int) noexcept
     _exit(EXIT_FAILURE);
 }
 
+void SharedMemoryObjectBuilder::printDebugInfo(log::ng::LogStream& log) noexcept
+{
+    log << "Shared memory object properties [ name = " << m_name;
+    log << ", sizeInBytes = " << m_memorySizeInBytes;
+    log << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)];
+    log << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)];
+    log << ", baseAddressHint = ";
+
+    if (m_baseAddressHint)
+    {
+        log << log::ng::hex(*m_baseAddressHint);
+    }
+    else
+    {
+        log << "no hint set";
+    }
+
+    log << ", permissions = " << log::ng::oct(static_cast<mode_t>(m_permissions)) << " ]";
+}
+
 cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
-    auto printErrorDetails = [this] {
-        LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
-                   << ", sizeInBytes = " << m_memorySizeInBytes
-                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
-                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)] << ", baseAddressHint = "
-            // << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
-            //                         : log::HexFormat(static_cast<uint64_t>(0U)))
-            // << ((m_baseAddressHint) ? "" : " (no hint set)")
-            // << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
-            ;
-    };
-
     auto sharedMemory = SharedMemoryBuilder()
                             .name(m_name)
                             .accessMode(m_accessMode)
@@ -70,8 +78,12 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
     if (!sharedMemory)
     {
-        printErrorDetails();
-        LogError() << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
+        LogError() << [this](auto& log) -> auto&
+        {
+            log << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource\n";
+            printDebugInfo(log);
+            return log;
+        };
         return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
@@ -86,8 +98,12 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
     if (!memoryMap)
     {
-        printErrorDetails();
-        LogError() << "Failed to map created shared memory into process!";
+        LogError() << [this](auto& log) -> auto&
+        {
+            log << "Failed to map created shared memory into process!\n";
+            printDebugInfo(log);
+            return log;
+        };
         return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 

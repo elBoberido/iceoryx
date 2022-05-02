@@ -43,8 +43,8 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
             rp::BaseRelativePointer::registerPtr(
                 segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
             LogDebug() << "Application registered management segment "
-                       //<< iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                       << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+                       << iox::log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                       << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
@@ -80,8 +80,8 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
 
                 LogDebug() << "Application registered payload data segment "
-                           //<< iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                           << iox::log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                           << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })

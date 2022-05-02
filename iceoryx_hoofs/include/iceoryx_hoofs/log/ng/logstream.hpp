@@ -28,12 +28,62 @@ namespace log
 {
 namespace ng
 {
+class LogStream;
+
+template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
+class LogHex
+{
+  public:
+    friend class LogStream;
+
+    explicit constexpr LogHex(const T value)
+        : m_value(value)
+    {
+    }
+
+  private:
+    T m_value;
+};
+
+template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
+inline constexpr LogHex<T> hex(const T value)
+{
+    return LogHex<T>(value);
+}
+
+inline LogHex<uint64_t> hex(const void* const ptr)
+{
+    return LogHex<uint64_t>(reinterpret_cast<uint64_t>(ptr));
+}
+
+template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
+class LogOct
+{
+  public:
+    friend class LogStream;
+
+    explicit constexpr LogOct(const T value)
+        : m_value(value)
+    {
+    }
+
+  private:
+    T m_value;
+};
+
+template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
+inline constexpr LogOct<T> oct(const T value)
+{
+    return LogOct<T>(value);
+}
+
 class LogStream
 {
   public:
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+        : m_logger(Logger::get())
     {
-        Logger::get().setupNewLogMessage(file, line, function, logLevel);
+        m_logger.setupNewLogMessage(file, line, function, logLevel);
     }
 
     virtual ~LogStream() noexcept
@@ -51,14 +101,14 @@ class LogStream
     {
         if (!m_flushed)
         {
-            Logger::get().flush();
+            m_logger.flush();
             m_flushed = true;
         }
     }
 
     LogStream& operator<<(const char* cstr) noexcept
     {
-        Logger::get().putString(cstr);
+        m_logger.putString(cstr);
         m_flushed = false;
         return *this;
     }
@@ -67,7 +117,7 @@ class LogStream
     // std::string dependency
     LogStream& operator<<(const std::string& str) noexcept
     {
-        Logger::get().putString(str.c_str());
+        m_logger.putString(str.c_str());
         m_flushed = false;
         return *this;
     }
@@ -75,7 +125,7 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        Logger::get().putI64(val);
+        m_logger.putI64Dec(val);
         m_flushed = false;
         return *this;
     }
@@ -83,7 +133,43 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        Logger::get().putU64(val);
+        m_logger.putU64Dec(val);
+        m_flushed = false;
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
+    LogStream& operator<<(const LogHex<T>&& val) noexcept
+    {
+        m_logger.putString("0x");
+        m_logger.putU64Hex(static_cast<uint64_t>(val.m_value));
+        m_flushed = false;
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
+    LogStream& operator<<(const LogHex<T>&& val) noexcept
+    {
+        m_logger.putString("0x");
+        m_logger.putU64Hex(val.m_value);
+        m_flushed = false;
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
+    LogStream& operator<<(const LogOct<T>&& val) noexcept
+    {
+        m_logger.putString("0o");
+        m_logger.putU64Oct(static_cast<uint64_t>(val.m_value));
+        m_flushed = false;
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
+    LogStream& operator<<(const LogOct<T>&& val) noexcept
+    {
+        m_logger.putString("0o");
+        m_logger.putU64Oct(val.m_value);
         m_flushed = false;
         return *this;
     }
@@ -99,6 +185,7 @@ class LogStream
 
 
   private:
+    Logger& m_logger;
     bool m_flushed{false};
 };
 

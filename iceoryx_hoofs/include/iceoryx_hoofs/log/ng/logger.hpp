@@ -203,13 +203,21 @@ class Logger
     }
 
     // TODO add `putU32(const uint32_t)`, putBool(const bool), ...
-    virtual void putU64(const uint64_t value)
+    virtual void putI64Dec(const int64_t value)
+    {
+        putArithmetik(value, "%li");
+    }
+    virtual void putU64Dec(const uint64_t value)
     {
         putArithmetik(value, "%lu");
     }
-    virtual void putI64(const int64_t value)
+    virtual void putU64Hex(const uint64_t value)
     {
-        putArithmetik(value, "%li");
+        putArithmetik(value, "%x");
+    }
+    virtual void putU64Oct(const uint64_t value)
+    {
+        putArithmetik(value, "%o");
     }
 
     template <typename T>

@@ -88,8 +88,8 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
     m_size = totalSize;
     m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
 
-    LogDebug() << "Registered memory segment " //<< iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
-               << " with size " << m_size << " to id " << m_segmentId;
+    LogDebug() << "Registered memory segment " << log::ng::hex(m_memory) << " with size " << m_size << " to id "
+               << m_segmentId;
 
     iox::posix::Allocator allocator(m_memory, m_size);
 
