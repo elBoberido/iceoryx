@@ -33,8 +33,6 @@ RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
     // setUniqueRouDiId is called multiple times but it is okay for the tests
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
     iox::popo::UniquePortId::setUniqueRouDiId(uniqueRouDiId);
-    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kWarn,
-                                                             iox::log::LogLevelOutput::kHideLogLevel);
 }
 
 RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,

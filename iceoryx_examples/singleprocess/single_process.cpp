@@ -112,7 +112,7 @@ int main()
 {
     // set the log level to error to see the essence of the example
     //! [log level]
-    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+    iox::log::ng::Logger::init(iox::log::ng::Logger::logLevelFromEnvOr(iox::log::ng::LogLevel::ERROR));
     //! [log level]
 
     //! [roudi config]

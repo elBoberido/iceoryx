@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
 
-    iox::testing::Logger::activateTestLogger();
+    iox::testing::Logger::init();
 
     return RUN_ALL_TESTS();
 }

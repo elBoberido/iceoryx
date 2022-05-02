@@ -29,6 +29,7 @@
 
 int main()
 {
+    iox::log::ng::Logger::init();
     //! [initialize runtime]
     constexpr char APP_NAME[] = "iox-cpp-user-header-untyped-publisher";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);

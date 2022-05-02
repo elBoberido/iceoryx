@@ -34,6 +34,9 @@ int main(int argc, char* argv[]) noexcept
         return EXIT_FAILURE;
     }
 
+    iox::log::ng::Logger::init(
+        iox::log::ng::Logger::logLevelFromEnvOr(static_cast<iox::log::ng::LogLevel>(cmdLineArgs->logLevel)));
+
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
     auto roudiConfig = configFileProvider.parse();

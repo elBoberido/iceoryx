@@ -34,14 +34,25 @@ class LogPrinter : public ::testing::EmptyTestEventListener
 };
 
 
-class Logger : public iox::log::ng::Logger
+class Logger : public log::ng::Logger
 {
   public:
-    static void activateTestLogger()
+    static void init()
     {
         static Logger logger;
-        logger.globalLogLevel = iox::log::ng::LogLevel::DEBUG;
-        iox::log::ng::Logger::activeLogger(&logger);
+        log::ng::Logger::activeLogger(&logger);
+        log::ng::Logger::init(log::ng::Logger::logLevelFromEnvOr(log::ng::LogLevel::TRACE));
+        // disable logger output only after initializing the logger to get error messages from initialization
+        if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
+        {
+            std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
+            logger.m_allowLog = log::ng::Logger::equalStrings(allowLogString, "on");
+        }
+        else
+        {
+            std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
+            logger.m_allowLog = false;
+        }
 
         auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
         listeners.Append(new LogPrinter);
@@ -96,7 +107,10 @@ class Logger : public iox::log::ng::Logger
         std::lock_guard<std::mutex> lock(m_logBufferMutex);
         m_logBuffer.emplace_back(m_buffer, m_bufferWriteIndex);
 
-        // iox::log::ng::Logger::flush();
+        if (m_allowLog)
+        {
+            log::ng::Logger::flush();
+        }
 
         m_buffer[0] = 0;
         m_bufferWriteIndex = 0U;
@@ -105,6 +119,7 @@ class Logger : public iox::log::ng::Logger
     // TODO use smart_lock
     std::mutex m_logBufferMutex;
     std::vector<std::string> m_logBuffer;
+    bool m_allowLog{true};
 };
 
 inline void LogPrinter::OnTestStart(const ::testing::TestInfo&)

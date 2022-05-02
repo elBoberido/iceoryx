@@ -47,5 +47,6 @@ LogLevel toLogLevel(enum iox_LogLevel level)
 
 void iox_set_loglevel(enum iox_LogLevel level)
 {
-    LogManager::GetLogManager().SetDefaultLogLevel(toLogLevel(level), LogLevelOutput::kHideLogLevel);
+    iox::log::ng::Logger::init(
+        iox::log::ng::Logger::logLevelFromEnvOr(static_cast<iox::log::ng::LogLevel>(toLogLevel(level))));
 }

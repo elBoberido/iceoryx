@@ -77,48 +77,110 @@ class Logger
     }
 
   protected:
-    static Logger& activeLogger(Logger* newLogger = nullptr)
+    template <uint32_t N>
+    static constexpr bool equalStrings(const char* lhs, const char (&rhs)[N])
+    {
+        return strncmp(lhs, rhs, N) == 0;
+    }
+
+    static Logger* activeLogger(Logger* newLogger = nullptr)
     {
         std::mutex mtx;
         std::lock_guard<std::mutex> lock(mtx);
-        static uint64_t loggerChangeCounter{0};
-        ++loggerChangeCounter;
         static Logger defaultLogger;
         static Logger* logger{&defaultLogger};
 
         if (newLogger)
         {
-            // TODO if necessary, this could be done in a way that threads which are already logging can detect a new
-            // logger, e.g.:
-            //    - loggerChangeCounter as atomic in the Logger itself
-            //    - Logger::get has a thread_local copy of this value and checks if the global counter changes
-            //    - Logger::get stores a pointer instead of a reference and calls Logger::activeLogger() if the counter
-            //    are not equal
-            // changing the logger should still notify the user with LogLevel::Debug if the logger was changed more than
-            // once since this indicates that someone is tampering with the logger
+            static uint64_t loggerChangeCounter{0};
+            ++loggerChangeCounter;
             if (loggerChangeCounter > 1)
             {
                 logger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
-                logger->putString(
-                    "Logger already used before changing the backend! Some threads will not use the new backend!");
+                logger->putString("Logger backend changed multiple times! This is not recommended! Change counter = ");
+                logger->putU64Dec(loggerChangeCounter);
                 logger->flush();
                 newLogger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
-                newLogger->putString(
-                    "Logger already used before changing the backend! Some threads will not use the new backend!");
+                logger->putString("Logger backend changed multiple times! This is not recommended! Change counter = ");
+                logger->putU64Dec(loggerChangeCounter);
                 newLogger->flush();
             }
+            logger->m_isActive.store(false);
             logger = newLogger;
         }
 
-        return *logger;
+        return logger;
     }
 
   public:
     static Logger& get()
     {
-        thread_local static Logger& logger = Logger::activeLogger();
-        return logger;
+        thread_local static Logger* logger = Logger::activeLogger();
+        if (!logger->m_isActive.load(std::memory_order_relaxed))
+        {
+            // no need to loop until m_isActive is true since this is an inherent race
+            //   - the logger needs to be active for the whole lifetime of the application anyway
+            //   - if the logger was changed again, the next call will update the logger
+            //   - furthermore, it is not recommended to change the logger more than once
+            logger = Logger::activeLogger();
+        }
+        return *logger;
     }
+
+    static LogLevel logLevelFromEnvOr(const LogLevel logLevel)
+    {
+        if (const auto* logLevelString = std::getenv("IOX_LOG_LEVEL"))
+        {
+            if (equalStrings(logLevelString, "off"))
+            {
+                return LogLevel::OFF;
+            }
+            else if (equalStrings(logLevelString, "fatal"))
+            {
+                return LogLevel::FATAL;
+            }
+            else if (equalStrings(logLevelString, "error"))
+            {
+                return LogLevel::ERROR;
+            }
+            else if (equalStrings(logLevelString, "warn"))
+            {
+                return LogLevel::WARN;
+            }
+            else if (equalStrings(logLevelString, "info"))
+            {
+                return LogLevel::INFO;
+            }
+            else if (equalStrings(logLevelString, "debug"))
+            {
+                return LogLevel::DEBUG;
+            }
+            else if (equalStrings(logLevelString, "trace"))
+            {
+                return LogLevel::TRACE;
+            }
+            else
+            {
+                auto& logger = Logger::get();
+                logger.setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::WARN);
+                logger.putString("Invalide value for 'IOX_LOG_LEVEL' environment variable: '");
+                logger.putString(logLevelString);
+                logger.putString("'");
+                logger.flush();
+            }
+        }
+        return logLevel;
+    }
+
+    static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO))
+    {
+        Logger::get().globalLogLevel.store(logLevel);
+    }
+
+    // TODO add a setLogLevel static function
+
+  protected:
+    friend class LogStream;
 
     virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
     {
@@ -254,6 +316,7 @@ class Logger
   private:
     // TODO create accessor functions for the global variables
   public:
+    // TODO with the introduction of m_isActive this shouldn't need to be static -> check
     static std::atomic<LogLevel> globalLogLevel; // initialized in corresponding cpp file
 
     // TODO make this a compile time option since if will reduce performance but some logger might want to do the
@@ -265,6 +328,7 @@ class Logger
     static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 
   protected:
+    std::atomic<bool> m_isActive{true};
     static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
     static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
     thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];

@@ -43,13 +43,13 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
 
             if (configFile.isOpen())
             {
-                LogInfo() << "No config file provided. Using '" << defaultConfigFilePath << "'";
+                LogDebug() << "No config file provided. Using '" << defaultConfigFilePath << "'";
                 m_customConfigFilePath = defaultConfigFilePath;
             }
             else
             {
-                LogInfo() << "No config file provided and also not found at '" << defaultConfigFilePath
-                          << "'. Falling back to built-in config.";
+                LogDebug() << "No config file provided and also not found at '" << defaultConfigFilePath
+                           << "'. Falling back to built-in config.";
             }
         }
         m_customConfigFilePath = cmdLineArgs.configFilePath;

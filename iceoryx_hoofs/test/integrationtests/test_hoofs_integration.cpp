@@ -24,7 +24,7 @@ using ::testing::_;
 
 int main(int argc, char* argv[])
 {
-    iox::testing::Logger::activateTestLogger();
+    iox::testing::Logger::init();
 
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

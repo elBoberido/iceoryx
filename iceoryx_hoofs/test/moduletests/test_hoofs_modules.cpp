@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
 
-    iox::testing::Logger::activateTestLogger();
+    iox::testing::Logger::init();
 
     g_argc = argc;
     g_argv = argv;

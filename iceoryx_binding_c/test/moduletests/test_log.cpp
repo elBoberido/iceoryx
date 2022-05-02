@@ -25,33 +25,33 @@ extern "C" {
 namespace
 {
 using namespace ::testing;
-using namespace iox::log;
+using namespace iox::log::ng;
 
 TEST(iox_log_test, LogLevelIsSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cbfc1b9d-d770-441c-b53d-11b1685ca0b4");
-    auto& logManager = iox::log::LogManager::GetLogManager();
+    auto& logger = Logger::get();
 
     iox_set_loglevel(Iceoryx_LogLevel_Off);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kOff);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::OFF);
 
     iox_set_loglevel(Iceoryx_LogLevel_Fatal);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kFatal);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::FATAL);
 
-    iox_set_loglevel(Iceoryx_LogLevel_Debug);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kDebug);
+    iox_set_loglevel(Iceoryx_LogLevel_Error);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::ERROR);
 
     iox_set_loglevel(Iceoryx_LogLevel_Warn);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kWarn);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::WARN);
 
     iox_set_loglevel(Iceoryx_LogLevel_Info);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kInfo);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::INFO);
 
     iox_set_loglevel(Iceoryx_LogLevel_Debug);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kDebug);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::DEBUG);
 
     iox_set_loglevel(Iceoryx_LogLevel_Verbose);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kVerbose);
+    EXPECT_EQ(logger.globalLogLevel, LogLevel::TRACE);
 }
 
 } // namespace
