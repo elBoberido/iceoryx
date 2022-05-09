@@ -108,7 +108,7 @@ class LogStream
 
     LogStream& operator<<(const char* cstr) noexcept
     {
-        m_logger.putString(cstr);
+        m_logger.logString(cstr);
         m_flushed = false;
         return *this;
     }
@@ -117,7 +117,7 @@ class LogStream
     // std::string dependency
     LogStream& operator<<(const std::string& str) noexcept
     {
-        m_logger.putString(str.c_str());
+        m_logger.logString(str.c_str());
         m_flushed = false;
         return *this;
     }
@@ -125,7 +125,7 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        m_logger.putI64Dec(val);
+        m_logger.logI64Dec(val);
         m_flushed = false;
         return *this;
     }
@@ -133,7 +133,7 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
     LogStream& operator<<(const T val) noexcept
     {
-        m_logger.putU64Dec(val);
+        m_logger.logU64Dec(val);
         m_flushed = false;
         return *this;
     }
@@ -141,8 +141,8 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
     LogStream& operator<<(const LogHex<T>&& val) noexcept
     {
-        m_logger.putString("0x");
-        m_logger.putU64Hex(static_cast<uint64_t>(val.m_value));
+        m_logger.logString("0x");
+        m_logger.logU64Hex(static_cast<uint64_t>(val.m_value));
         m_flushed = false;
         return *this;
     }
@@ -150,8 +150,8 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
     LogStream& operator<<(const LogHex<T>&& val) noexcept
     {
-        m_logger.putString("0x");
-        m_logger.putU64Hex(val.m_value);
+        m_logger.logString("0x");
+        m_logger.logU64Hex(val.m_value);
         m_flushed = false;
         return *this;
     }
@@ -159,8 +159,8 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_signed<T>::value, int>::type = 0>
     LogStream& operator<<(const LogOct<T>&& val) noexcept
     {
-        m_logger.putString("0o");
-        m_logger.putU64Oct(static_cast<uint64_t>(val.m_value));
+        m_logger.logString("0o");
+        m_logger.logU64Oct(static_cast<uint64_t>(val.m_value));
         m_flushed = false;
         return *this;
     }
@@ -168,8 +168,8 @@ class LogStream
     template <typename T, typename std::enable_if<std::is_unsigned<T>::value, int>::type = 0>
     LogStream& operator<<(const LogOct<T>&& val) noexcept
     {
-        m_logger.putString("0o");
-        m_logger.putU64Oct(val.m_value);
+        m_logger.logString("0o");
+        m_logger.logU64Oct(val.m_value);
         m_flushed = false;
         return *this;
     }

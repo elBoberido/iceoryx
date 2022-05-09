@@ -97,12 +97,12 @@ class Logger
             if (loggerChangeCounter > 1)
             {
                 logger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
-                logger->putString("Logger backend changed multiple times! This is not recommended! Change counter = ");
-                logger->putU64Dec(loggerChangeCounter);
+                logger->logString("Logger backend changed multiple times! This is not recommended! Change counter = ");
+                logger->logU64Dec(loggerChangeCounter);
                 logger->flush();
                 newLogger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
-                logger->putString("Logger backend changed multiple times! This is not recommended! Change counter = ");
-                logger->putU64Dec(loggerChangeCounter);
+                logger->logString("Logger backend changed multiple times! This is not recommended! Change counter = ");
+                logger->logU64Dec(loggerChangeCounter);
                 newLogger->flush();
             }
             logger->m_isActive.store(false);
@@ -163,9 +163,9 @@ class Logger
             {
                 auto& logger = Logger::get();
                 logger.setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::WARN);
-                logger.putString("Invalide value for 'IOX_LOG_LEVEL' environment variable: '");
-                logger.putString(logLevelString);
-                logger.putString("'");
+                logger.logString("Invalide value for 'IOX_LOG_LEVEL' environment variable: '");
+                logger.logString(logLevelString);
+                logger.logString("'");
                 logger.flush();
             }
         }
@@ -247,7 +247,7 @@ class Logger
         }
     }
 
-    virtual void putString(const char* message)
+    virtual void logString(const char* message)
     {
         auto retVal =
             snprintf(&m_buffer[m_bufferWriteIndex],
@@ -265,25 +265,25 @@ class Logger
     }
 
     // TODO add `putU32(const uint32_t)`, putBool(const bool), ...
-    virtual void putI64Dec(const int64_t value)
+    virtual void logI64Dec(const int64_t value)
     {
-        putArithmetik(value, "%li");
+        logArithmetik(value, "%li");
     }
-    virtual void putU64Dec(const uint64_t value)
+    virtual void logU64Dec(const uint64_t value)
     {
-        putArithmetik(value, "%lu");
+        logArithmetik(value, "%lu");
     }
-    virtual void putU64Hex(const uint64_t value)
+    virtual void logU64Hex(const uint64_t value)
     {
-        putArithmetik(value, "%x");
+        logArithmetik(value, "%x");
     }
-    virtual void putU64Oct(const uint64_t value)
+    virtual void logU64Oct(const uint64_t value)
     {
-        putArithmetik(value, "%o");
+        logArithmetik(value, "%o");
     }
 
     template <typename T>
-    inline void putArithmetik(const T value, const char* format)
+    inline void logArithmetik(const T value, const char* format)
     {
         auto retVal =
             snprintf(&m_buffer[m_bufferWriteIndex],
