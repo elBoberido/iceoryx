@@ -62,20 +62,10 @@ constexpr const char* LOG_LEVEL_TEXT[] = {
     "[Trace]", // bold cyan
 };
 
+class ConsoleLogger;
+
 class Logger
 {
-  private:
-    template <uint32_t N>
-    static constexpr uint32_t stringLength(const char (&)[N])
-    {
-        return N;
-    }
-
-    template <typename T>
-    inline void unused(T&&) const
-    {
-    }
-
   protected:
     template <uint32_t N>
     static constexpr bool equalStrings(const char* lhs, const char (&rhs)[N])
@@ -83,34 +73,7 @@ class Logger
         return strncmp(lhs, rhs, N) == 0;
     }
 
-    static Logger* activeLogger(Logger* newLogger = nullptr)
-    {
-        std::mutex mtx;
-        std::lock_guard<std::mutex> lock(mtx);
-        static Logger defaultLogger;
-        static Logger* logger{&defaultLogger};
-
-        if (newLogger)
-        {
-            static uint64_t loggerChangeCounter{0};
-            ++loggerChangeCounter;
-            if (loggerChangeCounter > 1)
-            {
-                logger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
-                logger->logString("Logger backend changed multiple times! This is not recommended! Change counter = ");
-                logger->logU64Dec(loggerChangeCounter);
-                logger->flush();
-                newLogger->setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::ERROR);
-                logger->logString("Logger backend changed multiple times! This is not recommended! Change counter = ");
-                logger->logU64Dec(loggerChangeCounter);
-                newLogger->flush();
-            }
-            logger->m_isActive.store(false);
-            logger = newLogger;
-        }
-
-        return logger;
-    }
+    static Logger* activeLogger(Logger* newLogger = nullptr);
 
   public:
     static Logger& get()
@@ -162,7 +125,7 @@ class Logger
             else
             {
                 auto& logger = Logger::get();
-                logger.setupNewLogMessage(__FILE__, __LINE__, __PRETTY_FUNCTION__, LogLevel::WARN);
+                logger.setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::WARN);
                 logger.logString("Invalide value for 'IOX_LOG_LEVEL' environment variable: '");
                 logger.logString(logLevelString);
                 logger.logString("'");
@@ -182,7 +145,106 @@ class Logger
   protected:
     friend class LogStream;
 
-    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel) = 0;
+
+    void logString(const char* message)
+    {
+        auto retVal =
+            snprintf(&m_buffer[m_bufferWriteIndex],
+                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
+                     "%s",
+                     message); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        if (retVal >= 0)
+        {
+            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
+        }
+        else
+        {
+            // TODO an error occurred; what to do next? call error handler?
+        }
+    }
+
+    // TODO add addBool(const bool), ...
+    void logI64Dec(const int64_t value)
+    {
+        logArithmetik(value, "%li");
+    }
+    void logU64Dec(const uint64_t value)
+    {
+        logArithmetik(value, "%lu");
+    }
+    void logU64Hex(const uint64_t value)
+    {
+        logArithmetik(value, "%x");
+    }
+    void logU64Oct(const uint64_t value)
+    {
+        logArithmetik(value, "%o");
+    }
+
+    template <typename T>
+    inline void logArithmetik(const T value, const char* format)
+    {
+        auto retVal =
+            snprintf(&m_buffer[m_bufferWriteIndex],
+                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
+                     format,
+                     value); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        if (retVal >= 0)
+        {
+            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
+        }
+        else
+        {
+            // TODO an error occurred; what to do next? call error handler?
+        }
+    }
+
+    virtual void flush() = 0;
+
+  private:
+    // TODO create accessor functions for the global variables
+  public:
+    // TODO with the introduction of m_isActive this shouldn't need to be static -> check
+    static std::atomic<LogLevel> globalLogLevel; // initialized in corresponding cpp file
+
+    // TODO make this a compile time option since if will reduce performance but some logger might want to do the
+    // filtering by themself
+    static constexpr bool GLOBAL_LOG_ALL{false};
+
+    // TODO compile time option for minimal compiled log level, i.e. all lower log level should be optimized out
+    // this is different than GLOBAL_LOG_ALL since globalLogLevel could still be set to off
+    static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
+
+  protected:
+    std::atomic<bool> m_isActive{true};
+    static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
+    static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
+    thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
+    thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
+    // TODO thread local storage with thread id
+};
+
+class ConsoleLogger : public Logger
+{
+    friend class Logger;
+
+  private:
+    template <uint32_t N>
+    static constexpr uint32_t stringLength(const char (&)[N])
+    {
+        return N;
+    }
+
+    template <typename T>
+    inline void unused(T&&) const
+    {
+    }
+
+  protected:
+    ConsoleLogger() = default;
+
+    void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel) override
     {
         // TODO check all pointer for nullptr
 
@@ -206,7 +268,8 @@ class Logger
         constexpr const char TIME_FORMAT[]{"2002-02-20 22:02:02"};
         constexpr uint32_t ZERO_TERMINATION{1U};
         constexpr uint32_t YEAR_1M_PROBLEM{2U}; // in case iceoryx is still in use, please change to 3
-        constexpr auto TIMESTAMP_BUFFER_SIZE{Logger::stringLength(TIME_FORMAT) + YEAR_1M_PROBLEM + ZERO_TERMINATION};
+        constexpr auto TIMESTAMP_BUFFER_SIZE{ConsoleLogger::stringLength(TIME_FORMAT) + YEAR_1M_PROBLEM
+                                             + ZERO_TERMINATION};
         char timestampString[TIMESTAMP_BUFFER_SIZE]{0};
         auto strftimeRetVal = strftime(timestampString,
                                        TIMESTAMP_BUFFER_SIZE - 1, // TODO check whether the -1 is required
@@ -247,60 +310,7 @@ class Logger
         }
     }
 
-    virtual void logString(const char* message)
-    {
-        auto retVal =
-            snprintf(&m_buffer[m_bufferWriteIndex],
-                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
-                     "%s",
-                     message); // TODO do we need to check whether message is null-terminated at a reasonable length?
-        if (retVal >= 0)
-        {
-            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
-        }
-        else
-        {
-            // TODO an error occurred; what to do next? call error handler?
-        }
-    }
-
-    // TODO add `putU32(const uint32_t)`, putBool(const bool), ...
-    virtual void logI64Dec(const int64_t value)
-    {
-        logArithmetik(value, "%li");
-    }
-    virtual void logU64Dec(const uint64_t value)
-    {
-        logArithmetik(value, "%lu");
-    }
-    virtual void logU64Hex(const uint64_t value)
-    {
-        logArithmetik(value, "%x");
-    }
-    virtual void logU64Oct(const uint64_t value)
-    {
-        logArithmetik(value, "%o");
-    }
-
-    template <typename T>
-    inline void logArithmetik(const T value, const char* format)
-    {
-        auto retVal =
-            snprintf(&m_buffer[m_bufferWriteIndex],
-                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
-                     format,
-                     value); // TODO do we need to check whether message is null-terminated at a reasonable length?
-        if (retVal >= 0)
-        {
-            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
-        }
-        else
-        {
-            // TODO an error occurred; what to do next? call error handler?
-        }
-    }
-
-    virtual void flush()
+    void flush() override
     {
         if (std::puts(m_buffer) < 0)
         {
@@ -309,32 +319,36 @@ class Logger
         m_buffer[0] = 0;
         m_bufferWriteIndex = 0U;
     };
-
-  protected:
-    Logger() = default;
-
-  private:
-    // TODO create accessor functions for the global variables
-  public:
-    // TODO with the introduction of m_isActive this shouldn't need to be static -> check
-    static std::atomic<LogLevel> globalLogLevel; // initialized in corresponding cpp file
-
-    // TODO make this a compile time option since if will reduce performance but some logger might want to do the
-    // filtering by themself
-    static constexpr bool GLOBAL_LOG_ALL{false};
-
-    // TODO compile time option for minimal compiled log level, i.e. all lower log level should be optimized out
-    // this is different than GLOBAL_LOG_ALL since globalLogLevel could still be set to off
-    static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
-
-  protected:
-    std::atomic<bool> m_isActive{true};
-    static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
-    static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
-    thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
-    thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
-    // TODO thread local storage with thread id
 };
+
+inline Logger* Logger::activeLogger(Logger* newLogger)
+{
+    std::mutex mtx;
+    std::lock_guard<std::mutex> lock(mtx);
+    static ConsoleLogger defaultLogger;
+    static Logger* logger{&defaultLogger};
+
+    if (newLogger)
+    {
+        static uint64_t loggerChangeCounter{0};
+        ++loggerChangeCounter;
+        if (loggerChangeCounter > 1)
+        {
+            logger->setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+            logger->logString("Logger backend changed multiple times! This is not recommended! Change counter = ");
+            logger->logU64Dec(loggerChangeCounter);
+            logger->flush();
+            newLogger->setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+            logger->logString("Logger backend changed multiple times! This is not recommended! Change counter = ");
+            logger->logU64Dec(loggerChangeCounter);
+            newLogger->flush();
+        }
+        logger->m_isActive.store(false);
+        logger = newLogger;
+    }
+
+    return logger;
+}
 
 } // namespace ng
 } // namespace log

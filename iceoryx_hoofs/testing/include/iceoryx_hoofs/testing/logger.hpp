@@ -34,7 +34,7 @@ class LogPrinter : public ::testing::EmptyTestEventListener
 };
 
 
-class Logger : public log::ng::Logger
+class Logger : public log::ng::ConsoleLogger
 {
   public:
     static void init()
@@ -109,7 +109,7 @@ class Logger : public log::ng::Logger
 
         if (m_allowLog)
         {
-            log::ng::Logger::flush();
+            log::ng::ConsoleLogger::flush();
         }
 
         m_buffer[0] = 0;
