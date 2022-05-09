@@ -205,7 +205,9 @@ class Logger
   private:
     // TODO create accessor functions for the global variables
   public:
-    // TODO with the introduction of m_isActive this shouldn't need to be static -> check
+    // TODO with the introduction of m_isActive this shouldn't need to be static -> check ... on the other side, when
+    // the log level shall be changed after Logger::init, this needs to stay an atomic and m_isActive needs to be
+    // changed to a counter with 0 being inactive
     static std::atomic<LogLevel> globalLogLevel; // initialized in corresponding cpp file
 
     // TODO make this a compile time option since if will reduce performance but some logger might want to do the
