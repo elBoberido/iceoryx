@@ -30,7 +30,7 @@ namespace log
 {
 namespace ng
 {
-std::atomic<LogLevel> Logger::globalLogLevel{LogLevel::INFO};
+std::atomic<LogLevel> Logger::m_activeLogLevel{LogLevel::INFO};
 thread_local char Logger::m_buffer[Logger::NULL_TERMINATED_BUFFER_SIZE]{0};
 thread_local uint32_t Logger::m_bufferWriteIndex{0U};
 } // namespace ng

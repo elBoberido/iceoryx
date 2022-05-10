@@ -64,7 +64,6 @@ LogLevel Logger::GetLogLevel() const noexcept
 void Logger::SetLogLevel(const LogLevel logLevel) noexcept
 {
     m_logLevel.store(logLevel, std::memory_order_relaxed);
-    ng::Logger::globalLogLevel.store(static_cast<ng::LogLevel>(logLevel));
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)

@@ -90,6 +90,21 @@ class Logger
         return *logger;
     }
 
+    static constexpr LogLevel minimalLogLevel()
+    {
+        return Logger::MINIMAL_LOG_LEVEL;
+    }
+
+    static constexpr bool ignoreActiveLogLevel()
+    {
+        return Logger::IGNORE_ACTIVE_LOG_LEVEL;
+    }
+
+    static LogLevel activeLogLevel()
+    {
+        return Logger::m_activeLogLevel.load(std::memory_order_relaxed);
+    }
+
     static LogLevel logLevelFromEnvOr(const LogLevel logLevel)
     {
         if (const auto* logLevelString = std::getenv("IOX_LOG_LEVEL"))
@@ -137,7 +152,7 @@ class Logger
 
     static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO))
     {
-        Logger::get().globalLogLevel.store(logLevel);
+        Logger::get().m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
     }
 
     // TODO add a setLogLevel static function
@@ -203,19 +218,17 @@ class Logger
     virtual void flush() = 0;
 
   private:
-    // TODO create accessor functions for the global variables
-  public:
     // TODO with the introduction of m_isActive this shouldn't need to be static -> check ... on the other side, when
     // the log level shall be changed after Logger::init, this needs to stay an atomic and m_isActive needs to be
     // changed to a counter with 0 being inactive
-    static std::atomic<LogLevel> globalLogLevel; // initialized in corresponding cpp file
+    static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
 
     // TODO make this a compile time option since if will reduce performance but some logger might want to do the
     // filtering by themself
-    static constexpr bool GLOBAL_LOG_ALL{false};
+    static constexpr bool IGNORE_ACTIVE_LOG_LEVEL{false};
 
     // TODO compile time option for minimal compiled log level, i.e. all lower log level should be optimized out
-    // this is different than GLOBAL_LOG_ALL since globalLogLevel could still be set to off
+    // this is different than IGNORE_ACTIVE_LOG_LEVEL since m_activeLogLevel could still be set to off
     static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 
   protected:
