@@ -57,11 +57,11 @@ void RouDiApp::roudiSigHandler(int32_t signal) noexcept
     {
         if (signal == SIGHUP)
         {
-            LogWarn() << "SIGHUP not supported by RouDi";
+            IOX_LOG(WARN) << "SIGHUP not supported by RouDi";
         }
         // Post semaphore to exit
         g_RouDiApp->m_semaphore.post().or_else([](auto) {
-            LogFatal() << "RouDi app semaphore seems corrupted. Unable to send termination signal.";
+            IOX_LOG(FATAL) << "RouDi app semaphore seems corrupted. Unable to send termination signal.";
             errorHandler(PoshError::ROUDI_APP__FAILED_TO_UNLOCK_SEMAPHORE_IN_SIG_HANDLER, ErrorLevel::FATAL);
         });
     }
@@ -98,7 +98,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     {
         registerSigHandler();
 
-        LogVerbose() << "Command line parameters are:\n"; // << cmdLineArgs;
+        IOX_LOG(TRACE) << "Command line parameters are:\n"; // << cmdLineArgs;
     }
 }
 
@@ -106,7 +106,7 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
 {
     if (config.m_sharedMemorySegments.empty())
     {
-        LogError() << "A RouDiConfig without segments was specified! Please provide a valid config!";
+        IOX_LOG(ERROR) << "A RouDiConfig without segments was specified! Please provide a valid config!";
         return false;
     }
 
@@ -114,7 +114,8 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
     {
         if (segment.m_mempoolConfig.m_mempoolConfig.empty())
         {
-            LogError() << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
+            IOX_LOG(ERROR)
+                << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
             return false;
         }
     }

@@ -39,7 +39,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     }
     else
     {
-        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
+        IOX_LOG(FATAL) << "Cannot set runtime factory. Passed factory must not be empty!";
         errorHandler(PoshError::POSH__RUNTIME_FACTORY_IS_NOT_SET);
     }
 }
@@ -71,7 +71,7 @@ PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept
 {
     if (cxx::isCompiledOn32BitSystem())
     {
-        LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
+        IOX_LOG(WARN) << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
     }
 
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
@@ -81,17 +81,18 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
 {
     if (!name.has_value())
     {
-        LogError() << "Cannot initialize runtime. Application name has not been specified!";
+        IOX_LOG(ERROR) << "Cannot initialize runtime. Application name has not been specified!";
         errorHandler(PoshError::POSH__RUNTIME_NO_NAME_PROVIDED, ErrorLevel::FATAL);
     }
     else if (name.value()->empty())
     {
-        LogError() << "Cannot initialize runtime. Application name must not be empty!";
+        IOX_LOG(ERROR) << "Cannot initialize runtime. Application name must not be empty!";
         errorHandler(PoshError::POSH__RUNTIME_NAME_EMPTY, ErrorLevel::FATAL);
     }
     else if (name.value()->c_str()[0] == '/')
     {
-        LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
+        IOX_LOG(ERROR) << "Cannot initialize runtime. Please remove leading slash from Application name "
+                       << *name.value();
         errorHandler(PoshError::POSH__RUNTIME_LEADING_SLASH_PROVIDED, ErrorLevel::FATAL);
     }
 

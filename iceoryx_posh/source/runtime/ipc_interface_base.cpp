@@ -69,8 +69,8 @@ IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
     m_maxMessageSize = messageSize;
     if (m_maxMessageSize > platform::IoxIpcChannelType::MAX_MESSAGE_SIZE)
     {
-        LogWarn() << "Message size too large, reducing from " << messageSize << " to "
-                  << platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
+        IOX_LOG(WARN) << "Message size too large, reducing from " << messageSize << " to "
+                      << platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
         m_maxMessageSize = platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
     }
 }
@@ -99,7 +99,7 @@ bool IpcInterfaceBase::setMessageFromString(const char* buffer, IpcMessage& answ
     answer.setMessage(buffer);
     if (!answer.isValid())
     {
-        LogError() << "The received message " << answer.getMessage() << " is not valid";
+        IOX_LOG(ERROR) << "The received message " << answer.getMessage() << " is not valid";
         return false;
     }
     return true;
@@ -109,8 +109,8 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
 {
     if (!msg.isValid())
     {
-        LogError() << "Trying to send the message " << msg.getMessage() << " which "
-                   << "does not follow the specified syntax.";
+        IOX_LOG(ERROR) << "Trying to send the message " << msg.getMessage() << " which "
+                       << "does not follow the specified syntax.";
         return false;
     }
 
@@ -119,7 +119,7 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
         {
             const size_t messageSize =
                 static_cast<size_t>(msg.getMessage().size()) + platform::IoxIpcChannelType::NULL_TERMINATOR_SIZE;
-            LogError() << "msg size of " << messageSize << " bigger than configured max message size";
+            IOX_LOG(ERROR) << "msg size of " << messageSize << " bigger than configured max message size";
         }
     };
     return !m_ipcChannel.send(msg.getMessage()).or_else(logLengthError).has_error();
@@ -129,8 +129,8 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
 {
     if (!msg.isValid())
     {
-        LogError() << "Trying to send the message " << msg.getMessage() << " which "
-                   << "does not follow the specified syntax.";
+        IOX_LOG(ERROR) << "Trying to send the message " << msg.getMessage() << " which "
+                       << "does not follow the specified syntax.";
         return false;
     }
 
@@ -139,7 +139,7 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
         {
             const size_t messageSize =
                 static_cast<size_t>(msg.getMessage().size()) + platform::IoxIpcChannelType::NULL_TERMINATOR_SIZE;
-            LogError() << "msg size of " << messageSize << " bigger than configured max message size";
+            IOX_LOG(ERROR) << "msg size of " << messageSize << " bigger than configured max message size";
         }
     };
     return !m_ipcChannel.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
@@ -158,7 +158,7 @@ bool IpcInterfaceBase::isInitialized() const noexcept
 bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
     m_ipcChannel.destroy().or_else(
-        [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_runtimeName; });
+        [this](auto) { IOX_LOG(WARN) << "unable to destroy previous ipc channel " << m_runtimeName; });
 
     m_channelSide = channelSide;
     platform::IoxIpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
@@ -191,7 +191,7 @@ void IpcInterfaceBase::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noex
 {
     if (platform::IoxIpcChannelType::unlinkIfExists(name).value_or(false))
     {
-        LogWarn() << "IPC channel still there, doing an unlink of " << name;
+        IOX_LOG(WARN) << "IPC channel still there, doing an unlink of " << name;
     }
 }
 

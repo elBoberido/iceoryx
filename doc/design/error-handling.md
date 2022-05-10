@@ -166,7 +166,7 @@ The logger can be used similar to the streams in the C++ standard API.
 To select the log level, the corresponding logger has to be used, e.g. ``LogErr``, ``LogWarn`` etc.
 
 ```cpp
-LogWarn() << "log message " << someValue << "log message continued";
+IOX_LOG(WARN) << "log message " << someValue << "log message continued";
 ```
 
 A line break is inserted implicitly at the end (after "log message continued" in the example).

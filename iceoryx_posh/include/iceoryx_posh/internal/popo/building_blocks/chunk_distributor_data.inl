@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_INL
 
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
+
 namespace iox
 {
 namespace popo
@@ -39,8 +41,8 @@ inline ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, Chunk
 {
     if (m_historyCapacity != historyCapacity)
     {
-        LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                  << ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
+        IOX_LOG(WARN) << "Chunk history too large, reducing from " << historyCapacity << " to "
+                      << ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
     }
 }
 

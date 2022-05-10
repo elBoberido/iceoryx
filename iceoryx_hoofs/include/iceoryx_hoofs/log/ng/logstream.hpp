@@ -200,8 +200,6 @@ class LogStream
 // alternatively, register callbacks for this functions at runtime and do nothing by default
 // -> this is probably better since it can easily be used to suppress the logger output for tests
 
-// TODO check whether expression templates could be used to defer serialization of integers, etc and get length of all elements to log ... alternatively, store all elements in a variant ... or a function/function_ref which captures the data ... this might not work or be expensive for stuff like std::string
-
 // clang-format on
 
 
@@ -230,15 +228,6 @@ inline bool custom(const char* file, const char* function)
 
 // use this
 #define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::ng::LogLevel::level)
-
-// not this, because there is no iox prefix and it will easily clash with other macros
-#define LogFatal() IOX_LOG(FATAL)
-#define LogError() IOX_LOG(ERROR)
-#define LogWarn() IOX_LOG(WARN)
-#define LogInfo() IOX_LOG(INFO)
-#define LogDebug() IOX_LOG(DEBUG)
-#define LogTrace() IOX_LOG(TRACE)
-#define LogVerbose() IOX_LOG(TRACE)
 
 } // namespace ng
 } // namespace log

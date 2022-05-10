@@ -28,12 +28,12 @@ void iox_runtime_init(const char* const name)
 {
     if (name == nullptr)
     {
-        LogError() << "Runtime name is a nullptr!";
+        IOX_LOG(ERROR) << "Runtime name is a nullptr!";
         std::terminate();
     }
     else if (strnlen(name, iox::MAX_RUNTIME_NAME_LENGTH + 1) > MAX_RUNTIME_NAME_LENGTH)
     {
-        LogError() << "Runtime name has more than 100 characters!";
+        IOX_LOG(ERROR) << "Runtime name has more than 100 characters!";
         std::terminate();
     }
 

@@ -87,7 +87,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             if (!cxx::convert::fromString(optarg, roudiId))
             {
-                LogError() << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
+                IOX_LOG(ERROR) << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
                 m_run = false;
             }
 
@@ -107,7 +107,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_run = false;
-                LogError() << "Options for monitoring-mode are 'on' and 'off'!";
+                IOX_LOG(ERROR) << "Options for monitoring-mode are 'on' and 'off'!";
             }
             break;
         }
@@ -144,8 +144,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_run = false;
-                LogError() << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
-                              "'verbose'!";
+                IOX_LOG(ERROR) << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
+                                  "'verbose'!";
             }
             break;
         }
@@ -155,7 +155,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
             if (!cxx::convert::fromString(optarg, processKillDelayInSeconds))
             {
-                LogError() << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]";
+                IOX_LOG(ERROR) << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY
+                               << "]";
                 m_run = false;
             }
             else
@@ -193,7 +194,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_run = false;
-                LogError()
+                IOX_LOG(ERROR)
                     << "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!";
             }
             break;

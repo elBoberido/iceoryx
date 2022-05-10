@@ -78,7 +78,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
     if (!sharedMemory)
     {
-        LogError() << [this](auto& log) -> auto&
+        IOX_LOG(ERROR) << [this](auto& log) -> auto&
         {
             log << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource\n";
             printDebugInfo(log);
@@ -98,7 +98,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
     if (!memoryMap)
     {
-        LogError() << [this](auto& log) -> auto&
+        IOX_LOG(ERROR) << [this](auto& log) -> auto&
         {
             log << "Failed to map created shared memory into process!\n";
             printDebugInfo(log);
@@ -111,7 +111,8 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
     if (sharedMemory->hasOwnership())
     {
-        LogDebug() << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name << "]";
+        IOX_LOG(DEBUG) << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name
+                       << "]";
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -135,8 +136,8 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
-        LogDebug() << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name
-                   << "]";
+        IOX_LOG(DEBUG) << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name
+                       << "]";
     }
 
     return cxx::success<SharedMemoryObject>(

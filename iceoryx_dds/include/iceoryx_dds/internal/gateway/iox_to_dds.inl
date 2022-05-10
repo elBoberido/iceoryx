@@ -42,15 +42,16 @@ inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept
 template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const config::GatewayConfig& config) noexcept
 {
-    LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway...";
+    IOX_LOG(DEBUG) << "[Iceoryx2DDSGateway] Configuring gateway...";
     for (const auto& service : config.m_configuredServices)
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
             auto serviceDescription = service.m_serviceDescription;
-            LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
-                       << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
-                       << ", " << serviceDescription.getEventIDString() << "}";
+            IOX_LOG(DEBUG) << "[DDS2IceoryxGateway] Setting up channel for service: {"
+                           << serviceDescription.getServiceIDString() << ", "
+                           << serviceDescription.getInstanceIDString() << ", " << serviceDescription.getEventIDString()
+                           << "}";
             popo::SubscriberOptions options;
             options.queueCapacity = SUBSCRIBER_CACHE_SIZE;
             IOX_DISCARD_RESULT(setupChannel(serviceDescription, options));
@@ -61,10 +62,10 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const co
 template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::CaproMessage& msg) noexcept
 {
-    LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> " << msg.m_type
-               << " { Service: " << msg.m_serviceDescription.getServiceIDString()
-               << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
-               << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
+    IOX_LOG(DEBUG) << "[Iceoryx2DDSGateway] <CaproMessage> " << msg.m_type
+                   << " { Service: " << msg.m_serviceDescription.getServiceIDString()
+                   << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
+                   << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
 
     if (msg.m_serviceDescription.getServiceIDString() == capro::IdString_t(roudi::INTROSPECTION_SERVICE_ID))
     {

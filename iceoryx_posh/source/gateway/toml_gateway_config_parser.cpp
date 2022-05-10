@@ -30,7 +30,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     // Set defaults if no path provided.
     if (path.size() == 0)
     {
-        LogWarn() << "Invalid file path provided. Falling back to built-in config.";
+        IOX_LOG(WARN) << "Invalid file path provided. Falling back to built-in config.";
         config.setDefaults();
         return iox::cxx::success<GatewayConfig>(config);
     }
@@ -39,11 +39,11 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     iox::cxx::FileReader configFile(path, "", cxx::FileReader::ErrorMode::Ignore);
     if (!configFile.isOpen())
     {
-        LogWarn() << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
+        IOX_LOG(WARN) << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
         return iox::cxx::success<GatewayConfig>(config);
     }
 
-    LogInfo() << "Using gateway config at: " << path;
+    IOX_LOG(INFO) << "Using gateway config at: " << path;
 
     std::shared_ptr<cpptoml::table> parsedToml{nullptr};
     try
@@ -55,9 +55,9 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     {
         auto parserError = iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER;
 
-        LogWarn() << iox::cxx::convertEnumToString(iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                   parserError)
-                  << ": " << parserException.what();
+        IOX_LOG(WARN) << iox::cxx::convertEnumToString(iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                       parserError)
+                      << ": " << parserException.what();
 
         return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
     }

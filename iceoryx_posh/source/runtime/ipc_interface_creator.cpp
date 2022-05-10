@@ -31,14 +31,14 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
               .or_else([&runtimeName](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {
-                      LogFatal() << "An application with the name " << runtimeName
-                                 << " is still running. Using the "
-                                    "same name twice is not supported.";
+                      IOX_LOG(FATAL) << "An application with the name " << runtimeName
+                                     << " is still running. Using the "
+                                        "same name twice is not supported.";
                       errorHandler(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, iox::ErrorLevel::FATAL);
                   }
                   else
                   {
-                      LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
+                      IOX_LOG(FATAL) << "Error occurred while acquiring file lock named " << runtimeName;
                       errorHandler(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, iox::ErrorLevel::FATAL);
                   }
               })
@@ -54,7 +54,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
 void IpcInterfaceCreator::cleanupResource() noexcept
 {
     m_ipcChannel.destroy().or_else(
-        [this](auto) { LogWarn() << "unable to cleanup ipc channel resource " << m_runtimeName; });
+        [this](auto) { IOX_LOG(WARN) << "unable to cleanup ipc channel resource " << m_runtimeName; });
 }
 } // namespace runtime
 } // namespace iox

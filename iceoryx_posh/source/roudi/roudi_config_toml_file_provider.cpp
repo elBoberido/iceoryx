@@ -43,13 +43,13 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
 
             if (configFile.isOpen())
             {
-                LogDebug() << "No config file provided. Using '" << defaultConfigFilePath << "'";
+                IOX_LOG(DEBUG) << "No config file provided. Using '" << defaultConfigFilePath << "'";
                 m_customConfigFilePath = defaultConfigFilePath;
             }
             else
             {
-                LogDebug() << "No config file provided and also not found at '" << defaultConfigFilePath
-                           << "'. Falling back to built-in config.";
+                IOX_LOG(DEBUG) << "No config file provided and also not found at '" << defaultConfigFilePath
+                               << "'. Falling back to built-in config.";
             }
         }
         m_customConfigFilePath = cmdLineArgs.configFilePath;
@@ -77,8 +77,8 @@ TomlRouDiConfigFileProvider::parse() noexcept
     {
         auto parserError = iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER;
 
-        LogWarn() << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError)
-                  << ": " << parserException.what();
+        IOX_LOG(WARN) << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError)
+                      << ": " << parserException.what();
 
         return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
     }

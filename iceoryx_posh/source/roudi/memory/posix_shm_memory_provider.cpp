@@ -43,7 +43,7 @@ PosixShmMemoryProvider::~PosixShmMemoryProvider() noexcept
 {
     if (isAvailable())
     {
-        destroy().or_else([](auto) { LogWarn() << "failed to cleanup POSIX shared memory provider resources"; });
+        destroy().or_else([](auto) { IOX_LOG(WARN) << "failed to cleanup POSIX shared memory provider resources"; });
     }
 }
 

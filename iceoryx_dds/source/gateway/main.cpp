@@ -71,9 +71,9 @@ int main()
     iox::config::TomlGatewayConfigParser::parse()
         .and_then([&](auto config) { gatewayConfig = config; })
         .or_else([&](auto err) {
-            LogWarn() << "[Main] Failed to parse gateway config with error: "
-                      << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[err];
-            LogWarn() << "[Main] Using default configuration.";
+            IOX_LOG(WARN) << "[Main] Failed to parse gateway config with error: "
+                          << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[err];
+            IOX_LOG(WARN) << "[Main] Using default configuration.";
             gatewayConfig.setDefaults();
         });
 

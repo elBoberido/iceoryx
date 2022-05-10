@@ -101,12 +101,12 @@ void LogManager::SetDefaultLogMode(const LogMode logMode) noexcept
 
     if ((logMode & LogMode::kRemote) == LogMode::kRemote)
     {
-        LogError() << "Remote logging not yet supported!";
+        IOX_LOG(ERROR) << "Remote logging not yet supported!";
     }
 
     if ((logMode & LogMode::kFile) == LogMode::kFile)
     {
-        LogError() << "Logging to file not yet supported!";
+        IOX_LOG(ERROR) << "Logging to file not yet supported!";
     }
 }
 

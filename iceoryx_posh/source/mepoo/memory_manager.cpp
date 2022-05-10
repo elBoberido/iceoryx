@@ -53,12 +53,13 @@ void MemoryManager::addMemPool(posix::Allocator& managementAllocator,
     uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(chunkPayloadSize));
     if (m_denyAddMemPool)
     {
-        LogFatal() << "After the generation of the chunk management pool you are not allowed to create new mempools.";
+        IOX_LOG(FATAL)
+            << "After the generation of the chunk management pool you are not allowed to create new mempools.";
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
     }
     else if (m_memPoolVector.size() > 0 && adjustedChunkSize <= m_memPoolVector.back().getChunkSize())
     {
-        LogFatal() << [&](auto& log) -> auto&
+        IOX_LOG(FATAL) << [&](auto& log) -> auto&
         {
             log << "The following mempools were already added to the mempool handler:";
             printMemPoolVector(log);
@@ -176,14 +177,14 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
 
     if (m_memPoolVector.size() == 0)
     {
-        LogFatal() << "There are no mempools available!";
+        IOX_LOG(FATAL) << "There are no mempools available!";
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, ErrorLevel::SEVERE);
         return cxx::error<Error>(Error::NO_MEMPOOLS_AVAILABLE);
     }
     else if (memPoolPointer == nullptr)
     {
-        LogFatal() << [&](auto& log) -> auto&
+        IOX_LOG(FATAL) << [&](auto& log) -> auto&
         {
             log << "The following mempools are available:";
             printMemPoolVector(log);
@@ -196,7 +197,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
     }
     else if (chunk == nullptr)
     {
-        LogError() << [&](auto& log) -> auto&
+        IOX_LOG(ERROR) << [&](auto& log) -> auto&
         {
             log << "MemoryManager: unable to acquire a chunk with a chunk-payload size of "
                 << chunkSettings.userPayloadSize();

@@ -81,9 +81,9 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                 this->setSegmentId(iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
                                                                              sharedMemoryObject.getSizeInBytes()));
 
-                LogDebug() << "Roudi registered payload data segment "
-                           << log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                           << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
+                IOX_LOG(DEBUG) << "Roudi registered payload data segment "
+                               << log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                               << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
             })
             .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
             .value());
