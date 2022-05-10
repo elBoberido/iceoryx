@@ -34,7 +34,7 @@ namespace ng
     if ((level) <= iox::log::ng::Logger::minimalLogLevel()                                                             \
         && (iox::log::ng::Logger::ignoreActiveLogLevel() || (level) <= iox::log::ng::Logger::activeLogLevel()          \
             || iox::log::ng::custom(file, function)))                                                                  \
-    iox::log::ng::LogStream(file, line, function, level)
+    iox::log::ng::LogStream(file, line, function, level).self()
 
 // use this
 #define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::ng::LogLevel::level)

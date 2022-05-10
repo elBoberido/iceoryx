@@ -106,6 +106,11 @@ class LogStream
         }
     }
 
+    LogStream& self()
+    {
+        return *this;
+    };
+
     LogStream& operator<<(const char* cstr) noexcept
     {
         m_logger.logString(cstr);
