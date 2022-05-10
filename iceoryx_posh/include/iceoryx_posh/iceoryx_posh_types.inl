@@ -16,6 +16,8 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_INL
 #define IOX_POSH_ICEORYX_POSH_TYPES_INL
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+
 namespace iox
 {
 inline constexpr const char* asStringLiteral(ConnectionState value) noexcept
@@ -43,7 +45,7 @@ std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept
     return stream;
 }
 
-log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept
+log::ng::LogStream& operator<<(log::ng::LogStream& stream, ConnectionState value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
@@ -51,7 +53,7 @@ log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexce
 
 namespace roudi
 {
-inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept
+inline iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream, const MonitoringMode& mode) noexcept
 {
     switch (mode)
     {

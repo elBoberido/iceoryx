@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "iceoryx_hoofs/platform/getopt.hpp"
@@ -115,37 +115,41 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kOff;
+                m_logLevel = iox::log::ng::LogLevel::OFF;
             }
             else if (strcmp(optarg, "fatal") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kFatal;
+                m_logLevel = iox::log::ng::LogLevel::FATAL;
             }
             else if (strcmp(optarg, "error") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kError;
+                m_logLevel = iox::log::ng::LogLevel::ERROR;
             }
             else if (strcmp(optarg, "warning") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kWarn;
+                m_logLevel = iox::log::ng::LogLevel::WARN;
             }
             else if (strcmp(optarg, "info") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kInfo;
+                m_logLevel = iox::log::ng::LogLevel::INFO;
             }
             else if (strcmp(optarg, "debug") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kDebug;
+                m_logLevel = iox::log::ng::LogLevel::DEBUG;
+            }
+            else if (strcmp(optarg, "trace") == 0)
+            {
+                m_logLevel = iox::log::ng::LogLevel::TRACE;
             }
             else if (strcmp(optarg, "verbose") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kVerbose;
+                m_logLevel = iox::log::ng::LogLevel::TRACE;
             }
             else
             {
                 m_run = false;
                 IOX_LOG(ERROR) << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
-                                  "'verbose'!";
+                                  "'trace'!";
             }
             break;
         }

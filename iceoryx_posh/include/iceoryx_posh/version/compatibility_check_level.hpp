@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 #define IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 
 namespace iox
 {
@@ -32,8 +32,8 @@ enum class CompatibilityCheckLevel
     BUILD_DATE
 };
 
-inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream,
-                                       const version::CompatibilityCheckLevel& level) noexcept
+inline iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream,
+                                           const version::CompatibilityCheckLevel& level) noexcept
 {
     switch (level)
     {

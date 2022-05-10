@@ -183,6 +183,11 @@ class LogStream
         return c(*this);
     }
 
+    LogStream& operator<<(const LogLevel value) noexcept
+    {
+        m_logger.logString(asStringLiteral(value));
+        return *this;
+    }
 
   private:
     Logger& m_logger;
@@ -211,23 +216,6 @@ inline bool custom(const char* file, const char* function)
     static_cast<void>(function);
     return false;
 }
-
-// TODO move this to logging.hpp which shall be included for logging purposes
-
-// TODO how shall the filter work?
-// - (ignoreActiveLogLevel || level <= activeLogLevel) && custom
-// - ignoreActiveLogLevel || (level <= activeLogLevel && custom) <- this might be the best
-// - ignoreActiveLogLevel || level <= activeLogLevel  || custom  <- or this if we pass the log level to the custom
-// filter
-
-#define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
-    if ((level) <= iox::log::ng::Logger::minimalLogLevel()                                                             \
-        && (iox::log::ng::Logger::ignoreActiveLogLevel() || (level) <= iox::log::ng::Logger::activeLogLevel()          \
-            || iox::log::ng::custom(file, function)))                                                                  \
-    iox::log::ng::LogStream(file, line, function, level)
-
-// use this
-#define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::ng::LogLevel::level)
 
 } // namespace ng
 } // namespace log

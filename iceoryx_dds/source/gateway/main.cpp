@@ -17,9 +17,9 @@
 
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 #include "iceoryx_hoofs/platform/signal.hpp"
 #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"

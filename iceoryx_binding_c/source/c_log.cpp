@@ -14,39 +14,38 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/logmanager.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"
 }
 
-using namespace iox::log;
+using namespace iox::log::ng;
 
 LogLevel toLogLevel(enum iox_LogLevel level)
 {
     switch (level)
     {
     case Iceoryx_LogLevel_Off:
-        return LogLevel::kOff;
+        return LogLevel::OFF;
     case Iceoryx_LogLevel_Verbose:
-        return LogLevel::kVerbose;
+        return LogLevel::TRACE;
     case Iceoryx_LogLevel_Debug:
-        return LogLevel::kDebug;
+        return LogLevel::DEBUG;
     case Iceoryx_LogLevel_Info:
-        return LogLevel::kInfo;
+        return LogLevel::INFO;
     case Iceoryx_LogLevel_Warn:
-        return LogLevel::kWarn;
+        return LogLevel::WARN;
     case Iceoryx_LogLevel_Error:
-        return LogLevel::kError;
+        return LogLevel::ERROR;
     case Iceoryx_LogLevel_Fatal:
-        return LogLevel::kFatal;
+        return LogLevel::FATAL;
     default:
-        return LogLevel::kVerbose;
+        return LogLevel::TRACE;
     }
 }
 
 void iox_set_loglevel(enum iox_LogLevel level)
 {
-    iox::log::ng::Logger::init(
-        iox::log::ng::Logger::logLevelFromEnvOr(static_cast<iox::log::ng::LogLevel>(toLogLevel(level))));
+    iox::log::ng::Logger::init(iox::log::ng::Logger::logLevelFromEnvOr(toLogLevel(level)));
 }

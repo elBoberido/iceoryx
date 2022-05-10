@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/ng/logstream.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 
 #include <iostream>
 #include <string>

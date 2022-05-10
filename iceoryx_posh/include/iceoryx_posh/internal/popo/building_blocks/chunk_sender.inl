@@ -69,7 +69,7 @@ inline std::ostream& operator<<(std::ostream& stream, AllocationError value) noe
     return stream;
 }
 
-inline log::LogStream& operator<<(log::LogStream& stream, AllocationError value) noexcept
+inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, AllocationError value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

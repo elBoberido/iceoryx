@@ -14,6 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_POSH_CAPRO_CAPRO_MESSAGE_INL
+#define IOX_POSH_CAPRO_CAPRO_MESSAGE_INL
+
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
 
 namespace iox
 {
@@ -66,12 +70,6 @@ inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) no
     return stream;
 }
 
-inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept
-{
-    stream << asStringLiteral(value);
-    return stream;
-}
-
 inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, CaproMessageType value) noexcept
 {
     stream << asStringLiteral(value);
@@ -79,3 +77,5 @@ inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, CaproMessageTy
 }
 } // namespace capro
 } // namespace iox
+
+#endif // IOX_POSH_CAPRO_CAPRO_MESSAGE_INL

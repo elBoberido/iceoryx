@@ -842,7 +842,7 @@ TEST_F(ServerPort_test, asStringLiteralConvertsRequestResultValuesToStrings)
     uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
     EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
 }
-
+#if 0
 TEST_F(ServerPort_test, LogStreamConvertsAllocationErrorValueToString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "06d66398-318f-4531-a253-9a8e8b42fc00");
@@ -851,14 +851,14 @@ TEST_F(ServerPort_test, LogStreamConvertsAllocationErrorValueToString)
     auto sut = iox::popo::ServerRequestResult::NO_PENDING_REQUESTS;
 
     {
-        auto logstream = iox::log::LogStream(loggerMock);
+        auto logstream = iox::log::ng::LogStream(loggerMock);
         logstream << sut;
     }
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
 }
-
+#endif
 // END ServerRequestResult string tests
 
 // BEGIN ServerSendError string tests
@@ -896,7 +896,7 @@ TEST_F(ServerPort_test, asStringLiteralConvertsServerSendErrorValuesToStrings)
     uint64_t expectedTestedEnumValues = (1U << loopCounter) - 1;
     EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
 }
-
+#if 0
 TEST_F(ServerPort_test, LogStreamConvertsServerSendErrorValueToString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7a06b21d-ccab-457d-80b6-dc37843a0575");
@@ -905,14 +905,14 @@ TEST_F(ServerPort_test, LogStreamConvertsServerSendErrorValueToString)
     auto sut = iox::popo::ServerSendError::CLIENT_NOT_AVAILABLE;
 
     {
-        auto logstream = iox::log::LogStream(loggerMock);
+        auto logstream = iox::log::ng::LogStream(loggerMock);
         logstream << sut;
     }
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::popo::asStringLiteral(sut)));
 }
-
+#endif
 // END ServerSendError string tests
 
 } // namespace iox_test_popo_server_port

@@ -224,7 +224,7 @@ std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value)
     return stream;
 }
 
-log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept
+log::ng::LogStream& operator<<(log::ng::LogStream& stream, const MemoryManager::Error value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

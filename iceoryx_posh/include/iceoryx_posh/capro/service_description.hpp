@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/serialization.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include <cstdint>
@@ -183,11 +183,11 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
 /// @return the reference to `stream` which was provided as input parameter
 std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service) noexcept;
 
-/// @brief Convenience stream operator to easily use the `ServiceDescription` with log::LogStream
+/// @brief Convenience stream operator to easily use the `ServiceDescription` with log::ng::LogStream
 /// @param[in] stream output LogStream to write the message to
 /// @param[in] service ServiceDescription that shall be converted
 /// @return the reference to `stream` which was provided as input parameter
-log::LogStream& operator<<(log::LogStream& stream, const ServiceDescription& service) noexcept;
+log::ng::LogStream& operator<<(log::ng::LogStream& stream, const ServiceDescription& service) noexcept;
 log::ng::LogStream& operator<<(log::ng::LogStream& stream, const ServiceDescription& service) noexcept;
 
 } // namespace capro

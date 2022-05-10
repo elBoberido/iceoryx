@@ -42,6 +42,30 @@ enum class LogLevel : uint8_t
           // optimize this out and there wouldn't be a performance hit
 };
 
+
+inline constexpr const char* asStringLiteral(const LogLevel value) noexcept
+{
+    switch (value)
+    {
+    case LogLevel::OFF:
+        return "LogLevel::OFF";
+    case LogLevel::FATAL:
+        return "LogLevel::FATAL";
+    case LogLevel::ERROR:
+        return "LogLevel::ERROR";
+    case LogLevel::WARN:
+        return "LogLevel::WARN";
+    case LogLevel::INFO:
+        return "LogLevel::INFO";
+    case LogLevel::DEBUG:
+        return "LogLevel::DEBUG";
+    case LogLevel::TRACE:
+        return "LogLevel::TRACE";
+    }
+
+    return "[Undefined LogLevel]";
+}
+
 constexpr const char* LOG_LEVEL_COLOR[] = {
     "",                 // nothing
     "\033[0;1;97;41m",  // bold bright white on red

@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"

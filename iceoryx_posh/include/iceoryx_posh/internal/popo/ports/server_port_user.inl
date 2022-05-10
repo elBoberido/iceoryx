@@ -63,7 +63,7 @@ inline std::ostream& operator<<(std::ostream& stream, ServerRequestResult value)
     return stream;
 }
 
-inline log::LogStream& operator<<(log::LogStream& stream, ServerRequestResult value) noexcept
+inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, ServerRequestResult value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
@@ -90,7 +90,7 @@ inline std::ostream& operator<<(std::ostream& stream, ServerSendError value) noe
     return stream;
 }
 
-inline log::LogStream& operator<<(log::LogStream& stream, ServerSendError value) noexcept
+inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, ServerSendError value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

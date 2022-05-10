@@ -58,7 +58,7 @@ iox_add_library(
                             iceoryx_posh::iceoryx_posh_gateway
                             iceoryx_hoofs::iceoryx_hoofs
     FILES
-        source/iceoryx_dds/log/logging.cpp
+        source/iceoryx_dds/dds/iox_chunk_datagram_header.cpp
     )
 
 if(USE_CYCLONE_DDS)
@@ -67,7 +67,6 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_dds/dds/cyclone_context.cpp
         source/iceoryx_dds/dds/cyclone_data_reader.cpp
         source/iceoryx_dds/dds/cyclone_data_writer.cpp
-        source/iceoryx_dds/dds/iox_chunk_datagram_header.cpp
     )
 
     # Generate IDL at configure time

@@ -47,7 +47,7 @@ enum class RouDiMemoryManagerError
     MEMORY_DESTRUCTION_FAILED,
 };
 
-iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error) noexcept;
+iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream, const RouDiMemoryManagerError& error) noexcept;
 
 class RouDiMemoryManager
 {

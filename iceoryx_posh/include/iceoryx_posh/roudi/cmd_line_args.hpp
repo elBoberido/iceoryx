@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 #define IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_hoofs/log/ng/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 
@@ -29,7 +29,7 @@ namespace config
 struct CmdLineArgs_t
 {
     roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::ON};
-    iox::log::LogLevel logLevel{iox::log::LogLevel::kWarn};
+    iox::log::ng::LogLevel logLevel{iox::log::ng::LogLevel::WARN};
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
     cxx::optional<uint16_t> uniqueRouDiId{cxx::nullopt};
@@ -37,7 +37,8 @@ struct CmdLineArgs_t
     roudi::ConfigFilePathString_t configFilePath;
 };
 
-inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const CmdLineArgs_t& cmdLineArgs) noexcept
+inline iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream,
+                                           const CmdLineArgs_t& cmdLineArgs) noexcept
 {
     logstream << "Log level: " << cmdLineArgs.logLevel << "\n";
     logstream << "Monitoring mode: " << cmdLineArgs.monitoringMode << "\n";
