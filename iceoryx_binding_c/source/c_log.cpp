@@ -47,5 +47,5 @@ LogLevel toLogLevel(enum iox_LogLevel level)
 
 void iox_set_loglevel(enum iox_LogLevel level)
 {
-    iox::log::Logger::init(iox::log::Logger::logLevelFromEnvOr(toLogLevel(level)));
+    iox::log::getLogger().setLogLevel(toLogLevel(level));
 }

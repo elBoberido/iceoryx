@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LOG_NG_LOGSTREAM_HPP
-#define IOX_HOOFS_LOG_NG_LOGSTREAM_HPP
+#ifndef IOX_HOOFS_LOG_LOGSTREAM_HPP
+#define IOX_HOOFS_LOG_LOGSTREAM_HPP
 
 #include "iceoryx_hoofs/log/logger.hpp"
 
@@ -79,7 +79,6 @@ class LogStream
 {
   public:
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
-        : m_logger(Logger::get())
     {
         m_logger.setupNewLogMessage(file, line, function, logLevel);
     }
@@ -193,7 +192,7 @@ class LogStream
     }
 
   private:
-    Logger& m_logger;
+    Logger& m_logger{getLogger()};
     bool m_flushed{false};
 };
 
@@ -202,25 +201,11 @@ class LogStream
 
 // TODO cmake target iceoryx_hoofs_log with
 // - void initLogger(LogLevel level, bool useColors, bool printDate, bool printLogLevel, bool printFile, bool printFunction); // environment variables could be used to get the values for the parameters, e.g. initLogger(logLevelFromEnv(), useColorsFromEnvOr(true), ...)
-// - void log(const char* file, const char* line, const char* namespace, const char* class, uint8_t level, char* message);
 // - std::span<char, size_t> getLogBuffer();
-// cmake option to provide custom lib to link against
-// alternatively, register callbacks for this functions at runtime and do nothing by default
-// -> this is probably better since it can easily be used to suppress the logger output for tests
 
 // clang-format on
-
-
-// TODO use environment variable to set file or function for custom filter
-// ... environment variables for this should be read in initLogger
-inline bool custom(const char* file, const char* function)
-{
-    static_cast<void>(file);
-    static_cast<void>(function);
-    return false;
-}
 
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_LOG_NG_LOGSTREAM_HPP
+#endif // IOX_HOOFS_LOG_LOGSTREAM_HPP

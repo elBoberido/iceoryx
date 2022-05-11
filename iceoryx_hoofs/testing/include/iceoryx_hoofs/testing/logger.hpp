@@ -34,19 +34,21 @@ class LogPrinter : public ::testing::EmptyTestEventListener
 };
 
 
-class Logger : public log::ConsoleLogger
+class Logger : public platform::TestingLoggerBase
 {
+    using Base = platform::TestingLoggerBase;
+
   public:
     static void init()
     {
         static Logger logger;
-        log::Logger::activeLogger(&logger);
-        log::Logger::init(log::Logger::logLevelFromEnvOr(log::LogLevel::TRACE));
+        log::setActiveLogger(&logger);
+        log::initLogger(log::logLevelFromEnvOr(log::LogLevel::TRACE));
         // disable logger output only after initializing the logger to get error messages from initialization
         if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
         {
             std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
-            logger.m_allowLog = log::Logger::equalStrings(allowLogString, "on");
+            logger.m_allowLog = log::equalStrings(allowLogString, "on");
         }
         else
         {
@@ -81,14 +83,14 @@ class Logger : public log::ConsoleLogger
 
     static uint64_t getNumberOfLogMessages()
     {
-        auto& logger = dynamic_cast<Logger&>(iox::log::Logger::get());
+        auto& logger = dynamic_cast<Logger&>(log::getLogger());
         std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
         return logger.m_logBuffer.size();
     }
 
     static std::vector<std::string> getLogMessages()
     {
-        auto& logger = dynamic_cast<Logger&>(iox::log::Logger::get());
+        auto& logger = dynamic_cast<Logger&>(log::getLogger());
         std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
         return logger.m_logBuffer;
     }
@@ -109,7 +111,7 @@ class Logger : public log::ConsoleLogger
 
         if (m_allowLog)
         {
-            log::ConsoleLogger::flush();
+            Base::flush();
         }
 
         m_buffer[0] = 0;
@@ -124,15 +126,21 @@ class Logger : public log::ConsoleLogger
 
 inline void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
-    dynamic_cast<Logger&>(iox::log::Logger::get()).clearLogBuffer();
+    dynamic_cast<Logger&>(log::getLogger()).clearLogBuffer();
+    // TODO register signal handler for sigterm to flush to logger
+    // there might be tests to register a handler itself and when this is
+    // done at each start of the test start only the tests who use their
+    // own signal handler are affected and don't get an log output on termination
 }
 
 inline void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
 {
     if (result.failed())
     {
-        dynamic_cast<Logger&>(iox::log::Logger::get()).printLogBuffer();
+        dynamic_cast<Logger&>(log::getLogger()).printLogBuffer();
     }
+
+    // TODO de-register the signal handler
 }
 
 } // namespace testing

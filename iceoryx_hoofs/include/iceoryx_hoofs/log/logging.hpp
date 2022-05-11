@@ -14,23 +14,32 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LOG_NG_LOGGING_HPP
-#define IOX_HOOFS_LOG_NG_LOGGING_HPP
+#ifndef IOX_HOOFS_LOG_LOGGING_HPP
+#define IOX_HOOFS_LOG_LOGGING_HPP
 
 #include "iceoryx_hoofs/log/logstream.hpp"
 namespace iox
 {
 namespace log
 {
+// TODO use environment variable to set file or function for custom filter
+// ... environment variables for this should be read in initLogger
+inline bool custom(const char* file, const char* function)
+{
+    static_cast<void>(file);
+    static_cast<void>(function);
+    return false;
+}
+
 // TODO how shall the filter work?
-// - (ignoreActiveLogLevel || level <= activeLogLevel) && custom
-// - ignoreActiveLogLevel || (level <= activeLogLevel && custom) <- this might be the best
-// - ignoreActiveLogLevel || level <= activeLogLevel  || custom  <- or this if we pass the log level to the custom
+// - (ignoreLogLevel || level <= getLogLevel) && custom
+// - ignoreLogLevel || (level <= getLogLevel && custom) <- this might be the best
+// - ignoreLogLevel || level <= getLogLevel  || custom  <- or this if we pass the log level to the custom
 // filter
 
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
     if ((level) <= iox::log::Logger::minimalLogLevel()                                                                 \
-        && (iox::log::Logger::ignoreActiveLogLevel() || (level) <= iox::log::Logger::activeLogLevel()                  \
+        && (iox::log::Logger::ignoreLogLevel() || (level) <= iox::log::Logger::getLogLevel()                           \
             || iox::log::custom(file, function)))                                                                      \
     iox::log::LogStream(file, line, function, level).self()
 
@@ -40,4 +49,4 @@ namespace log
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_LOG_NG_LOGGING_HPP
+#endif // IOX_HOOFS_LOG_LOGGING_HPP

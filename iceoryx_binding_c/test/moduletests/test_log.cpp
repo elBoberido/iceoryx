@@ -30,28 +30,28 @@ using namespace iox::log;
 TEST(iox_log_test, LogLevelIsSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cbfc1b9d-d770-441c-b53d-11b1685ca0b4");
-    auto& logger = Logger::get();
+    auto& logger = getLogger();
 
     iox_set_loglevel(Iceoryx_LogLevel_Off);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::OFF);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::OFF);
 
     iox_set_loglevel(Iceoryx_LogLevel_Fatal);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::FATAL);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::FATAL);
 
     iox_set_loglevel(Iceoryx_LogLevel_Error);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::ERROR);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::ERROR);
 
     iox_set_loglevel(Iceoryx_LogLevel_Warn);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::WARN);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::WARN);
 
     iox_set_loglevel(Iceoryx_LogLevel_Info);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::INFO);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::INFO);
 
     iox_set_loglevel(Iceoryx_LogLevel_Debug);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::DEBUG);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::DEBUG);
 
     iox_set_loglevel(Iceoryx_LogLevel_Verbose);
-    EXPECT_EQ(logger.activeLogLevel(), LogLevel::TRACE);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::TRACE);
 }
 
 } // namespace

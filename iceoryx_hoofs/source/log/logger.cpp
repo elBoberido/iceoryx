@@ -17,19 +17,48 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/log/logger.hpp"
-
-#include <atomic>
-
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
 {
 namespace log
 {
-std::atomic<LogLevel> Logger::m_activeLogLevel{LogLevel::INFO};
-thread_local char Logger::m_buffer[Logger::NULL_TERMINATED_BUFFER_SIZE]{0};
-thread_local uint32_t Logger::m_bufferWriteIndex{0U};
+LogLevel logLevelFromEnvOr(const LogLevel logLevel)
+{
+    if (const auto* logLevelString = std::getenv("IOX_LOG_LEVEL"))
+    {
+        if (equalStrings(logLevelString, "off"))
+        {
+            return LogLevel::OFF;
+        }
+        else if (equalStrings(logLevelString, "fatal"))
+        {
+            return LogLevel::FATAL;
+        }
+        else if (equalStrings(logLevelString, "error"))
+        {
+            return LogLevel::ERROR;
+        }
+        else if (equalStrings(logLevelString, "warn"))
+        {
+            return LogLevel::WARN;
+        }
+        else if (equalStrings(logLevelString, "info"))
+        {
+            return LogLevel::INFO;
+        }
+        else if (equalStrings(logLevelString, "debug"))
+        {
+            return LogLevel::DEBUG;
+        }
+        else if (equalStrings(logLevelString, "trace"))
+        {
+            return LogLevel::TRACE;
+        }
+
+        IOX_LOG(WARN) << "Invalide value for 'IOX_LOG_LEVEL' environment variable: '" << logLevelString << "'";
+    }
+    return logLevel;
+}
 } // namespace log
 } // namespace iox
