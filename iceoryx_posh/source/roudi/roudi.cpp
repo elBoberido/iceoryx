@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"

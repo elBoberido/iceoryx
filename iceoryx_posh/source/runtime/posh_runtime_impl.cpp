@@ -22,7 +22,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/runtime/node.hpp"

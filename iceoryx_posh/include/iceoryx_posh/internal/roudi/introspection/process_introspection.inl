@@ -19,7 +19,7 @@
 
 #include "process_introspection.hpp"
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 
 #include <chrono>

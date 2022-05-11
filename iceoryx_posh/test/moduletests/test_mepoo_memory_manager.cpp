@@ -517,7 +517,7 @@ TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
     auto sut = iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS;
 
     {
-        auto logstream = iox::log::ng::LogStream(loggerMock);
+        auto logstream = iox::log::LogStream(loggerMock);
         logstream << sut;
     }
 

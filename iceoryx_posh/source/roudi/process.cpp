@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 

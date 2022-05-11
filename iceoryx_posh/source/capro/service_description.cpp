@@ -235,7 +235,7 @@ std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service
     return stream;
 }
 
-log::ng::LogStream& operator<<(log::ng::LogStream& stream, const ServiceDescription& service) noexcept
+log::LogStream& operator<<(log::LogStream& stream, const ServiceDescription& service) noexcept
 {
     /// @todo #415 Add classHash, scope and interface
     stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getInstanceIDString()

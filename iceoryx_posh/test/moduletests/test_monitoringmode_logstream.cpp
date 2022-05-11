@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #if 0
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -42,7 +42,7 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOffLeadsToCorrectString)
     auto sut = MonitoringMode::OFF;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 
@@ -57,7 +57,7 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
     auto sut = MonitoringMode::ON;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 

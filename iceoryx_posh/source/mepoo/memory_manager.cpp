@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/ng/logstream.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
@@ -33,7 +33,7 @@ namespace iox
 namespace mepoo
 {
 // TODO this could be a `LogStream& operator<<(LogStream&, cxx::vector<MemPool, N>);` overload
-void MemoryManager::printMemPoolVector(log::ng::LogStream& log) const noexcept
+void MemoryManager::printMemPoolVector(log::LogStream& log) const noexcept
 {
     log << "\n";
     for (auto& l_mempool : m_memPoolVector)
@@ -224,7 +224,7 @@ std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value)
     return stream;
 }
 
-log::ng::LogStream& operator<<(log::ng::LogStream& stream, const MemoryManager::Error value) noexcept
+log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

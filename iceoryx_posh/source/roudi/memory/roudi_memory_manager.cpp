@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
@@ -25,7 +25,7 @@ namespace iox
 {
 namespace roudi
 {
-iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream, const RouDiMemoryManagerError& error) noexcept
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error) noexcept
 {
     switch (error)
     {

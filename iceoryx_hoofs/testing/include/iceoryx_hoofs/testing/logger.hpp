@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_TESTING_LOGGER_HPP
 #define IOX_HOOFS_TESTING_LOGGER_HPP
 
-#include "iceoryx_hoofs/log/ng/logger.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
 
 #include "test.hpp"
 
@@ -34,19 +34,19 @@ class LogPrinter : public ::testing::EmptyTestEventListener
 };
 
 
-class Logger : public log::ng::ConsoleLogger
+class Logger : public log::ConsoleLogger
 {
   public:
     static void init()
     {
         static Logger logger;
-        log::ng::Logger::activeLogger(&logger);
-        log::ng::Logger::init(log::ng::Logger::logLevelFromEnvOr(log::ng::LogLevel::TRACE));
+        log::Logger::activeLogger(&logger);
+        log::Logger::init(log::Logger::logLevelFromEnvOr(log::LogLevel::TRACE));
         // disable logger output only after initializing the logger to get error messages from initialization
         if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
         {
             std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
-            logger.m_allowLog = log::ng::Logger::equalStrings(allowLogString, "on");
+            logger.m_allowLog = log::Logger::equalStrings(allowLogString, "on");
         }
         else
         {
@@ -81,14 +81,14 @@ class Logger : public log::ng::ConsoleLogger
 
     static uint64_t getNumberOfLogMessages()
     {
-        auto& logger = dynamic_cast<Logger&>(iox::log::ng::Logger::get());
+        auto& logger = dynamic_cast<Logger&>(iox::log::Logger::get());
         std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
         return logger.m_logBuffer.size();
     }
 
     static std::vector<std::string> getLogMessages()
     {
-        auto& logger = dynamic_cast<Logger&>(iox::log::ng::Logger::get());
+        auto& logger = dynamic_cast<Logger&>(iox::log::Logger::get());
         std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
         return logger.m_logBuffer;
     }
@@ -109,7 +109,7 @@ class Logger : public log::ng::ConsoleLogger
 
         if (m_allowLog)
         {
-            log::ng::ConsoleLogger::flush();
+            log::ConsoleLogger::flush();
         }
 
         m_buffer[0] = 0;
@@ -124,14 +124,14 @@ class Logger : public log::ng::ConsoleLogger
 
 inline void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
-    dynamic_cast<Logger&>(iox::log::ng::Logger::get()).clearLogBuffer();
+    dynamic_cast<Logger&>(iox::log::Logger::get()).clearLogBuffer();
 }
 
 inline void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
 {
     if (result.failed())
     {
-        dynamic_cast<Logger&>(iox::log::ng::Logger::get()).printLogBuffer();
+        dynamic_cast<Logger&>(iox::log::Logger::get()).printLogBuffer();
     }
 }
 

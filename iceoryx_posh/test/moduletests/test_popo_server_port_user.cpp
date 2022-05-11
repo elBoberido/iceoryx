@@ -851,7 +851,7 @@ TEST_F(ServerPort_test, LogStreamConvertsAllocationErrorValueToString)
     auto sut = iox::popo::ServerRequestResult::NO_PENDING_REQUESTS;
 
     {
-        auto logstream = iox::log::ng::LogStream(loggerMock);
+        auto logstream = iox::log::LogStream(loggerMock);
         logstream << sut;
     }
 
@@ -905,7 +905,7 @@ TEST_F(ServerPort_test, LogStreamConvertsServerSendErrorValueToString)
     auto sut = iox::popo::ServerSendError::CLIENT_NOT_AVAILABLE;
 
     {
-        auto logstream = iox::log::ng::LogStream(loggerMock);
+        auto logstream = iox::log::LogStream(loggerMock);
         logstream << sut;
     }
 

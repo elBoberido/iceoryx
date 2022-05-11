@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -112,7 +112,7 @@ int main()
 {
     // set the log level to error to see the essence of the example
     //! [log level]
-    iox::log::ng::Logger::init(iox::log::ng::Logger::logLevelFromEnvOr(iox::log::ng::LogLevel::ERROR));
+    iox::log::Logger::init(iox::log::Logger::logLevelFromEnvOr(iox::log::LogLevel::ERROR));
     //! [log level]
 
     //! [roudi config]

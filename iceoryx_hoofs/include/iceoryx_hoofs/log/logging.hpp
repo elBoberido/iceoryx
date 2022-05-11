@@ -17,12 +17,10 @@
 #ifndef IOX_HOOFS_LOG_NG_LOGGING_HPP
 #define IOX_HOOFS_LOG_NG_LOGGING_HPP
 
-#include "iceoryx_hoofs/log/ng/logstream.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 namespace iox
 {
 namespace log
-{
-namespace ng
 {
 // TODO how shall the filter work?
 // - (ignoreActiveLogLevel || level <= activeLogLevel) && custom
@@ -31,15 +29,14 @@ namespace ng
 // filter
 
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
-    if ((level) <= iox::log::ng::Logger::minimalLogLevel()                                                             \
-        && (iox::log::ng::Logger::ignoreActiveLogLevel() || (level) <= iox::log::ng::Logger::activeLogLevel()          \
-            || iox::log::ng::custom(file, function)))                                                                  \
-    iox::log::ng::LogStream(file, line, function, level).self()
+    if ((level) <= iox::log::Logger::minimalLogLevel()                                                                 \
+        && (iox::log::Logger::ignoreActiveLogLevel() || (level) <= iox::log::Logger::activeLogLevel()                  \
+            || iox::log::custom(file, function)))                                                                      \
+    iox::log::LogStream(file, line, function, level).self()
 
 // use this
-#define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::ng::LogLevel::level)
+#define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
 
-} // namespace ng
 } // namespace log
 } // namespace iox
 

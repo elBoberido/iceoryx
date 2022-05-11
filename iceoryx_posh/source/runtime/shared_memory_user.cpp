@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
@@ -43,7 +43,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
             rp::BaseRelativePointer::registerPtr(
                 segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
             IOX_LOG(DEBUG) << "Application registered management segment "
-                           << iox::log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                           << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
                            << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
@@ -80,7 +80,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
 
                 IOX_LOG(DEBUG) << "Application registered payload data segment "
-                               << iox::log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                               << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
                                << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));

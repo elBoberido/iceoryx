@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "iceoryx_hoofs/platform/getopt.hpp"
@@ -115,35 +115,35 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::OFF;
+                m_logLevel = iox::log::LogLevel::OFF;
             }
             else if (strcmp(optarg, "fatal") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::FATAL;
+                m_logLevel = iox::log::LogLevel::FATAL;
             }
             else if (strcmp(optarg, "error") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::ERROR;
+                m_logLevel = iox::log::LogLevel::ERROR;
             }
             else if (strcmp(optarg, "warning") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::WARN;
+                m_logLevel = iox::log::LogLevel::WARN;
             }
             else if (strcmp(optarg, "info") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::INFO;
+                m_logLevel = iox::log::LogLevel::INFO;
             }
             else if (strcmp(optarg, "debug") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::DEBUG;
+                m_logLevel = iox::log::LogLevel::DEBUG;
             }
             else if (strcmp(optarg, "trace") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::TRACE;
+                m_logLevel = iox::log::LogLevel::TRACE;
             }
             else if (strcmp(optarg, "verbose") == 0)
             {
-                m_logLevel = iox::log::ng::LogLevel::TRACE;
+                m_logLevel = iox::log::LogLevel::TRACE;
             }
             else
             {

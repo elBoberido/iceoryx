@@ -70,7 +70,7 @@ inline std::ostream& operator<<(std::ostream& stream, CaproMessageType value) no
     return stream;
 }
 
-inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, CaproMessageType value) noexcept
+inline log::LogStream& operator<<(log::LogStream& stream, CaproMessageType value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

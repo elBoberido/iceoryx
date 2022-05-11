@@ -18,7 +18,7 @@
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
@@ -82,7 +82,7 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                                                                              sharedMemoryObject.getSizeInBytes()));
 
                 IOX_LOG(DEBUG) << "Roudi registered payload data segment "
-                               << log::ng::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                               << log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
                                << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
             })
             .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })

@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/log/ng/logstream.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 #include <iostream>
 
 namespace iox
@@ -143,6 +143,6 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
 }
 
 template std::ostream& operator<<(std::ostream&, perms) noexcept;
-template log::ng::LogStream& operator<<(log::ng::LogStream&, perms) noexcept;
+template log::LogStream& operator<<(log::LogStream&, perms) noexcept;
 } // namespace cxx
 } // namespace iox

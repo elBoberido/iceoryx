@@ -668,7 +668,7 @@ TEST_F(ClientPort_test, LogStreamConvertsClientSendErrorValueToString)
     auto sut = iox::popo::ClientSendError::SERVER_NOT_AVAILABLE;
 
     {
-        auto logstream = iox::log::ng::LogStream(loggerMock);
+        auto logstream = iox::log::LogStream(loggerMock);
         logstream << sut;
     }
 

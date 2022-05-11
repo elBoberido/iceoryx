@@ -17,7 +17,7 @@
 
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 iox::dds::CycloneDataReader::CycloneDataReader(const capro::IdString_t serviceId,

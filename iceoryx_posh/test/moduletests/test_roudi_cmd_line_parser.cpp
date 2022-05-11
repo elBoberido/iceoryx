@@ -24,7 +24,7 @@ using namespace ::testing;
 
 using namespace iox::roudi;
 using namespace iox::config;
-using namespace iox::log::ng;
+using namespace iox::log;
 using namespace iox::units;
 using namespace iox::version;
 

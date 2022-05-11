@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/signal.hpp"
 #include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/platform/wait.hpp"

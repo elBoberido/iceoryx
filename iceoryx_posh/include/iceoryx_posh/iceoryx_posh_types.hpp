@@ -23,7 +23,7 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 
@@ -175,11 +175,11 @@ inline constexpr const char* asStringLiteral(ConnectionState value) noexcept;
 /// @return the reference to `stream` which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::ng::LogStream
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, ConnectionState value) noexcept;
+inline log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept;
 
 // Default properties of ChunkDistributorData
 struct DefaultChunkDistributorConfig
@@ -240,7 +240,7 @@ enum class MonitoringMode
     OFF
 };
 
-iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream, const MonitoringMode& mode) noexcept;
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept;
 } // namespace roudi
 
 namespace mepoo

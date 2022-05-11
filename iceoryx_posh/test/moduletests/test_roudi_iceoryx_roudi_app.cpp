@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/testing/logger.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
@@ -80,7 +80,7 @@ class IceoryxRoudiApp_Child : public IceOryxRouDiApp
         return m_run;
     }
 
-    iox::log::ng::LogLevel getLogLevel()
+    iox::log::LogLevel getLogLevel()
     {
         return m_logLevel;
     }
@@ -133,7 +133,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
     EXPECT_TRUE(roudi.getVariableRun());
-    EXPECT_EQ(roudi.getLogLevel(), iox::log::ng::LogLevel::WARN);
+    EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::WARN);
     EXPECT_EQ(roudi.getMonitoringMode(), roudi::MonitoringMode::ON);
 }
 

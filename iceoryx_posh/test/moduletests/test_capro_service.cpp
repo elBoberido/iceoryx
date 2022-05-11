@@ -441,7 +441,7 @@ TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
     auto sut = ServiceDescription{SERVICE_ID, INSTANCE_ID, EVENT_ID};
 
     {
-        auto logstream = iox::log::ng::LogStream(loggerMock);
+        auto logstream = iox::log::LogStream(loggerMock);
         logstream << sut;
     }
 

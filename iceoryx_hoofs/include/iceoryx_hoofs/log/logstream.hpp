@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_LOG_NG_LOGSTREAM_HPP
 #define IOX_HOOFS_LOG_NG_LOGSTREAM_HPP
 
-#include "iceoryx_hoofs/log/ng/logger.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
 
 #include <functional>
 #include <string>
@@ -25,8 +25,6 @@
 namespace iox
 {
 namespace log
-{
-namespace ng
 {
 class LogStream;
 
@@ -222,7 +220,6 @@ inline bool custom(const char* file, const char* function)
     return false;
 }
 
-} // namespace ng
 } // namespace log
 } // namespace iox
 

@@ -18,7 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
@@ -46,7 +46,7 @@ static void memsetSigbusHandler(int) noexcept
     _exit(EXIT_FAILURE);
 }
 
-void SharedMemoryObjectBuilder::printDebugInfo(log::ng::LogStream& log) noexcept
+void SharedMemoryObjectBuilder::printDebugInfo(log::LogStream& log) noexcept
 {
     log << "Shared memory object properties [ name = " << m_name;
     log << ", sizeInBytes = " << m_memorySizeInBytes;
@@ -56,14 +56,14 @@ void SharedMemoryObjectBuilder::printDebugInfo(log::ng::LogStream& log) noexcept
 
     if (m_baseAddressHint)
     {
-        log << log::ng::hex(*m_baseAddressHint);
+        log << log::hex(*m_baseAddressHint);
     }
     else
     {
         log << "no hint set";
     }
 
-    log << ", permissions = " << log::ng::oct(static_cast<mode_t>(m_permissions)) << " ]";
+    log << ", permissions = " << log::oct(static_cast<mode_t>(m_permissions)) << " ]";
 }
 
 cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept

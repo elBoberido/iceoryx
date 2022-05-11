@@ -167,7 +167,7 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
     {
         // TODO since file line and calling function are not printed by default, should `IOX_LOG` be used and the data
         // from m_details be printed in addition?
-        IOX_LOG_INTERNAL(m_details.file, m_details.line, m_details.callingFunction, iox::log::ng::LogLevel::ERROR)
+        IOX_LOG_INTERNAL(m_details.file, m_details.line, m_details.callingFunction, iox::log::LogLevel::ERROR)
             << " { " << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
             << m_details.result.getHumanReadableErrnum();
     }

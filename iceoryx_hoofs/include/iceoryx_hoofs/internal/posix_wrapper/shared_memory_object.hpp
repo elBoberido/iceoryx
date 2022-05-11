@@ -31,10 +31,7 @@ namespace iox
 {
 namespace log
 {
-namespace ng
-{
 class LogStream;
-}
 } // namespace log
 namespace posix
 {
@@ -141,7 +138,7 @@ class SharedMemoryObjectBuilder
     cxx::expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
 
   private:
-    void printDebugInfo(log::ng::LogStream& log) noexcept;
+    void printDebugInfo(log::LogStream& log) noexcept;
 };
 } // namespace posix
 } // namespace iox

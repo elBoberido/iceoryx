@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept
     return stream;
 }
 
-log::ng::LogStream& operator<<(log::ng::LogStream& stream, ConnectionState value) noexcept
+log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;
@@ -53,7 +53,7 @@ log::ng::LogStream& operator<<(log::ng::LogStream& stream, ConnectionState value
 
 namespace roudi
 {
-inline iox::log::ng::LogStream& operator<<(iox::log::ng::LogStream& logstream, const MonitoringMode& mode) noexcept
+inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode) noexcept
 {
     switch (mode)
     {

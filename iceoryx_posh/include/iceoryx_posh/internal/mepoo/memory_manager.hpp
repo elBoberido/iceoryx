@@ -83,7 +83,7 @@ class MemoryManager
   private:
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
-    void printMemPoolVector(log::ng::LogStream& log) const noexcept;
+    void printMemPoolVector(log::LogStream& log) const noexcept;
     void addMemPool(posix::Allocator& managementAllocator,
                     posix::Allocator& chunkMemoryAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
@@ -109,11 +109,11 @@ inline constexpr const char* asStringLiteral(const MemoryManager::Error value) n
 /// @return the reference to `stream` which was provided as input parameter
 std::ostream& operator<<(std::ostream& stream, const MemoryManager::Error value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::ng::LogStream
+/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
 /// @return the reference to `stream` which was provided as input parameter
-log::ng::LogStream& operator<<(log::ng::LogStream& stream, const MemoryManager::Error value) noexcept;
+log::LogStream& operator<<(log::LogStream& stream, const MemoryManager::Error value) noexcept;
 
 } // namespace mepoo
 } // namespace iox

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
@@ -34,8 +34,7 @@ int main(int argc, char* argv[]) noexcept
         return EXIT_FAILURE;
     }
 
-    iox::log::ng::Logger::init(
-        iox::log::ng::Logger::logLevelFromEnvOr(static_cast<iox::log::ng::LogLevel>(cmdLineArgs->logLevel)));
+    iox::log::Logger::init(iox::log::Logger::logLevelFromEnvOr(static_cast<iox::log::LogLevel>(cmdLineArgs->logLevel)));
 
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 

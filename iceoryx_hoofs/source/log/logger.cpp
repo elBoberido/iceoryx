@@ -16,7 +16,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/ng/logger.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
 
 #include <atomic>
 
@@ -28,11 +28,8 @@ namespace iox
 {
 namespace log
 {
-namespace ng
-{
 std::atomic<LogLevel> Logger::m_activeLogLevel{LogLevel::INFO};
 thread_local char Logger::m_buffer[Logger::NULL_TERMINATED_BUFFER_SIZE]{0};
 thread_local uint32_t Logger::m_bufferWriteIndex{0U};
-} // namespace ng
 } // namespace log
 } // namespace iox

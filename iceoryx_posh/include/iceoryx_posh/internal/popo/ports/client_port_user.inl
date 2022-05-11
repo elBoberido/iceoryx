@@ -44,7 +44,7 @@ inline std::ostream& operator<<(std::ostream& stream, ClientSendError value) noe
     return stream;
 }
 
-inline log::ng::LogStream& operator<<(log::ng::LogStream& stream, ClientSendError value) noexcept
+inline log::LogStream& operator<<(log::LogStream& stream, ClientSendError value) noexcept
 {
     stream << asStringLiteral(value);
     return stream;

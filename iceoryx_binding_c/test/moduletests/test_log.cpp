@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"
@@ -25,7 +25,7 @@ extern "C" {
 namespace
 {
 using namespace ::testing;
-using namespace iox::log::ng;
+using namespace iox::log;
 
 TEST(iox_log_test, LogLevelIsSetCorrectly)
 {

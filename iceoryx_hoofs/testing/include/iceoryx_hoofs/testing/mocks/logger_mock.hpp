@@ -19,8 +19,8 @@
 #if 0
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
 
 #include <vector>
 

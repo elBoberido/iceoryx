@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"

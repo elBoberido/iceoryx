@@ -58,7 +58,7 @@ iox_add_library(
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
         source/file_reader/file_reader.cpp
-        source/log/ng/logger.cpp
+        source/log/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/message_queue.cpp

@@ -274,7 +274,7 @@ TEST_F(ChunkReceiver_test, LogStreamConvertsChunkReceiveResultValueToString)
     auto sut = iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE;
 
     {
-        auto logstream = iox::log::ng::LogStream(loggerMock);
+        auto logstream = iox::log::LogStream(loggerMock);
         logstream << sut;
     }
 

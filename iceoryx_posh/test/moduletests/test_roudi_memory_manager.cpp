@@ -152,7 +152,7 @@ TEST_F(RouDiMemoryManager_Test, OperatorTest)
     ::testing::Test::RecordProperty("TEST_ID", "67167a98-5ac2-498d-8062-47a61102a130");
     for (int16_t i = 0; i < nbTestCase; i++)
     {
-        iox::log::ng::LogStream logStream(loggerMock);
+        iox::log::LogStream logStream(loggerMock);
         logStream << m_testCombinationRoudiMemoryManagerError[i];
         logStream.Flush();
         ASSERT_THAT(loggerMock.m_logs.size(), Eq(i + 1U));

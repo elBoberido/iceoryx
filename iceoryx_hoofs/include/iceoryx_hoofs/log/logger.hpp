@@ -28,8 +28,6 @@ namespace iox
 {
 namespace log
 {
-namespace ng
-{
 enum class LogLevel : uint8_t
 {
     OFF = 0,
@@ -270,7 +268,7 @@ class ConsoleLogger : public Logger
 
   private:
     template <uint32_t N>
-    static constexpr uint32_t stringLength(const char (&)[N])
+    static constexpr uint32_t bufferSize(const char (&)[N])
     {
         return N;
     }
@@ -307,7 +305,7 @@ class ConsoleLogger : public Logger
         constexpr const char TIME_FORMAT[]{"2002-02-20 22:02:02"};
         constexpr uint32_t ZERO_TERMINATION{1U};
         constexpr uint32_t YEAR_1M_PROBLEM{2U}; // in case iceoryx is still in use, please change to 3
-        constexpr auto TIMESTAMP_BUFFER_SIZE{ConsoleLogger::stringLength(TIME_FORMAT) + YEAR_1M_PROBLEM
+        constexpr auto TIMESTAMP_BUFFER_SIZE{ConsoleLogger::bufferSize(TIME_FORMAT) + YEAR_1M_PROBLEM
                                              + ZERO_TERMINATION};
         char timestampString[TIMESTAMP_BUFFER_SIZE]{0};
         auto strftimeRetVal = strftime(timestampString,
@@ -389,7 +387,6 @@ inline Logger* Logger::activeLogger(Logger* newLogger)
     return logger;
 }
 
-} // namespace ng
 } // namespace log
 } // namespace iox
 

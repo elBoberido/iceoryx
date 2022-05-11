@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #if 0
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 
@@ -47,7 +47,7 @@ TEST_F(CompatibilityCheckLevel_test, OffLeadsToCorrectString)
     auto sut = CompatibilityCheckLevel::OFF;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 
@@ -62,7 +62,7 @@ TEST_F(CompatibilityCheckLevel_test, MajorLeadsToCorrectString)
     auto sut = CompatibilityCheckLevel::MAJOR;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 
@@ -77,7 +77,7 @@ TEST_F(CompatibilityCheckLevel_test, MinorLeadsToCorrectString)
     auto sut = CompatibilityCheckLevel::MINOR;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 
@@ -92,7 +92,7 @@ TEST_F(CompatibilityCheckLevel_test, PatchLeadsToCorrectString)
     auto sut = CompatibilityCheckLevel::PATCH;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 
@@ -107,7 +107,7 @@ TEST_F(CompatibilityCheckLevel_test, CommitIdLeadsToCorrectString)
     auto sut = CompatibilityCheckLevel::COMMIT_ID;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 
@@ -122,7 +122,7 @@ TEST_F(CompatibilityCheckLevel_test, BuildDateLeadsToCorrectString)
     auto sut = CompatibilityCheckLevel::BUILD_DATE;
 
     {
-        auto logstream = iox::log::ng::LogStream(m_loggerMock);
+        auto logstream = iox::log::LogStream(m_loggerMock);
         logstream << sut;
     }
 

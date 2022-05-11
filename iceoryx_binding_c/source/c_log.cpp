@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"
 }
 
-using namespace iox::log::ng;
+using namespace iox::log;
 
 LogLevel toLogLevel(enum iox_LogLevel level)
 {
@@ -47,5 +47,5 @@ LogLevel toLogLevel(enum iox_LogLevel level)
 
 void iox_set_loglevel(enum iox_LogLevel level)
 {
-    iox::log::ng::Logger::init(iox::log::ng::Logger::logLevelFromEnvOr(toLogLevel(level)));
+    iox::log::Logger::init(iox::log::Logger::logLevelFromEnvOr(toLogLevel(level)));
 }

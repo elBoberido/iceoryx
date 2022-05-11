@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
-#include "iceoryx_hoofs/log/ng/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/platform/resource.hpp"
 #include "iceoryx_hoofs/platform/semaphore.hpp"
