@@ -27,9 +27,68 @@
 #include <atomic>
 #include <iostream>
 
+#include "iceoryx_hoofs/log/logger.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
+
+class MyLogger : public iox::log::Logger
+{
+  public:
+    static void init()
+    {
+        static MyLogger myLogger;
+        iox::log::Logger::setActiveLogger(&myLogger);
+        iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
+    }
+
+  private:
+    void setupNewLogMessage(const char*, const int, const char*, iox::log::LogLevel logLevel) override
+    {
+        switch (logLevel)
+        {
+        case iox::log::LogLevel::FATAL:
+            logString("💀: ");
+            break;
+        case iox::log::LogLevel::ERROR:
+            logString("🙈: ");
+            break;
+        case iox::log::LogLevel::WARN:
+            logString("🙀: ");
+            break;
+        case iox::log::LogLevel::INFO:
+            logString("💘: ");
+            break;
+        case iox::log::LogLevel::DEBUG:
+            logString("🐞: ");
+            break;
+        case iox::log::LogLevel::TRACE:
+            logString("🐾: ");
+            break;
+        default:
+            logString("🐔: ");
+        }
+    }
+
+    void flush() override
+    {
+        puts(m_buffer);
+        m_bufferWriteIndex = 0;
+    }
+};
+
 int main()
 {
-    iox::log::initLogger();
+    MyLogger::init();
+
+    IOX_LOG(FATAL) << "Whoops ... look, over there is a dead seagull flying!";
+    IOX_LOG(ERROR) << "Oh no!";
+    IOX_LOG(WARN) << "It didn't happen!";
+    IOX_LOG(INFO) << "All glory to the hypnotoad!";
+    IOX_LOG(DEBUG) << "I didn't do it!";
+    IOX_LOG(TRACE) << "Row row row your boat!";
+
+    //     return 0;
+    // }
+    //     iox::log::Logger::init();
     //! [initialize runtime]
     constexpr char APP_NAME[] = "iox-cpp-user-header-untyped-publisher";
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);

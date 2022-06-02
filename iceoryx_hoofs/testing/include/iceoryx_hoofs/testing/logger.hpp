@@ -42,13 +42,13 @@ class Logger : public platform::TestingLoggerBase
     static void init()
     {
         static Logger logger;
-        log::setActiveLogger(&logger);
-        log::initLogger(log::logLevelFromEnvOr(log::LogLevel::TRACE));
+        log::Logger::setActiveLogger(&logger);
+        log::Logger::init(log::logLevelFromEnvOr(log::LogLevel::TRACE));
         // disable logger output only after initializing the logger to get error messages from initialization
         if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
         {
             std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
-            logger.m_allowLog = log::equalStrings(allowLogString, "on");
+            logger.m_allowLog = pbb::equalStrings(allowLogString, "on");
         }
         else
         {
@@ -83,14 +83,14 @@ class Logger : public platform::TestingLoggerBase
 
     static uint64_t getNumberOfLogMessages()
     {
-        auto& logger = dynamic_cast<Logger&>(log::getLogger());
+        auto& logger = dynamic_cast<Logger&>(log::Logger::get());
         std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
         return logger.m_logBuffer.size();
     }
 
     static std::vector<std::string> getLogMessages()
     {
-        auto& logger = dynamic_cast<Logger&>(log::getLogger());
+        auto& logger = dynamic_cast<Logger&>(log::Logger::get());
         std::lock_guard<std::mutex> lock(logger.m_logBufferMutex);
         return logger.m_logBuffer;
     }
@@ -126,7 +126,7 @@ class Logger : public platform::TestingLoggerBase
 
 inline void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
-    dynamic_cast<Logger&>(log::getLogger()).clearLogBuffer();
+    dynamic_cast<Logger&>(log::Logger::get()).clearLogBuffer();
     // TODO register signal handler for sigterm to flush to logger
     // there might be tests to register a handler itself and when this is
     // done at each start of the test start only the tests who use their
@@ -137,7 +137,7 @@ inline void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result
 {
     if (result.failed())
     {
-        dynamic_cast<Logger&>(log::getLogger()).printLogBuffer();
+        dynamic_cast<Logger&>(log::Logger::get()).printLogBuffer();
     }
 
     // TODO de-register the signal handler

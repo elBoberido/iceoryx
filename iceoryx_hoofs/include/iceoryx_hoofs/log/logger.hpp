@@ -26,31 +26,9 @@ namespace log
 {
 using LogLevel = platform::LogLevel;
 using platform::asStringLiteral;
+using platform::logLevelFromEnvOr;
 
 using Logger = platform::Logger;
-
-inline Logger& getLogger()
-{
-    return Logger::get<platform::DefaultLogger>();
-}
-
-inline Logger* setActiveLogger(Logger* newLogger)
-{
-    return Logger::activeLogger<platform::DefaultLogger>(newLogger);
-}
-
-LogLevel logLevelFromEnvOr(const LogLevel logLevel);
-
-inline void initLogger(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO))
-{
-    getLogger().initLogger(logLevel);
-}
-
-template <uint32_t N>
-inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N])
-{
-    return strncmp(lhs, rhs, N) == 0;
-}
 
 } // namespace log
 } // namespace iox

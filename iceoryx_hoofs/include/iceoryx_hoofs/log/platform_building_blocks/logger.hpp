@@ -84,22 +84,25 @@ constexpr const char* LOG_LEVEL_TEXT[] = {
     "[Trace]", // bold cyan
 };
 
-class ConsoleLogger;
-class Logger;
+template <uint32_t N>
+inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N])
+{
+    return strncmp(lhs, rhs, N) == 0;
+}
+
+LogLevel logLevelFromEnvOr(const LogLevel logLevel);
 
 } // namespace pbb
 
 namespace log
 {
-void initLogger(const pbb::LogLevel logLevel);
-pbb::Logger& getLogger();
-pbb::Logger* setActiveLogger(pbb::Logger* newLogger);
 class LogStream;
 } // namespace log
 
 namespace pbb
 {
-class Logger
+template <typename LoggerImpl>
+class Logger : public LoggerImpl
 {
   public:
     static constexpr LogLevel minimalLogLevel()
@@ -114,85 +117,88 @@ class Logger
 
     static LogLevel getLogLevel()
     {
-        return Logger::m_activeLogLevel.load(std::memory_order_relaxed);
+        return LoggerImpl::getLogLevel();
     }
 
     void setLogLevel(const LogLevel logLevel)
     {
-        m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
+        LoggerImpl::setLogLevel(logLevel);
     }
 
   protected:
-    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel) = 0;
-    virtual void flush() = 0;
+    // TODO instead of setupNewLogMessage LoggerImpl::setupNewLogMessage could be virtual; maybe with another name
+    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+    {
+        LoggerImpl::setupNewLogMessage(file, line, function, logLevel);
+    }
+    // TODO instead of flush LoggerImpl::flush could be virtual; maybe with another name
+    virtual void flush()
+    {
+        LoggerImpl::flush();
+    }
+
+    // instead of having this here, it could also be moved to the impl
     virtual void initLoggerHook(const LogLevel)
     {
     }
 
     void logString(const char* message)
     {
-        auto retVal =
-            snprintf(&m_buffer[m_bufferWriteIndex],
-                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
-                     "%s",
-                     message); // TODO do we need to check whether message is null-terminated at a reasonable length?
-        if (retVal >= 0)
-        {
-            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
-        }
-        else
-        {
-            // TODO an error occurred; what to do next? call error handler?
-        }
+        LoggerImpl::logString(message);
     }
 
     // TODO add addBool(const bool), ...
     void logI64Dec(const int64_t value)
     {
-        logArithmetik(value, "%li");
+        LoggerImpl::logI64Dec(value);
     }
     void logU64Dec(const uint64_t value)
     {
-        logArithmetik(value, "%lu");
+        LoggerImpl::logU64Dec(value);
     }
     void logU64Hex(const uint64_t value)
     {
-        logArithmetik(value, "%x");
+        LoggerImpl::logU64Hex(value);
     }
     void logU64Oct(const uint64_t value)
     {
-        logArithmetik(value, "%o");
+        LoggerImpl::logU64Oct(value);
+    }
+
+  public:
+    friend class log::LogStream;
+
+    static Logger& get()
+    {
+        thread_local static Logger* logger = Logger::activeLogger();
+        if (!logger->m_isActive.load(std::memory_order_relaxed))
+        {
+            // no need to loop until m_isActive is true since this is an inherent race
+            //   - the logger needs to be active for the whole lifetime of the application anyway
+            //   - if the logger was changed again, the next call will update the logger
+            //   - furthermore, it is not recommended to change the logger more than once
+            logger = Logger::activeLogger();
+        }
+        return *logger;
+    }
+
+    static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO))
+    {
+        Logger::get().initLogger(logLevel);
+    }
+
+    static void setActiveLogger(Logger* newLogger)
+    {
+        Logger::activeLogger(newLogger);
     }
 
   private:
-    template <typename T>
-    inline void logArithmetik(const T value, const char* format)
-    {
-        auto retVal =
-            snprintf(&m_buffer[m_bufferWriteIndex],
-                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
-                     format,
-                     value); // TODO do we need to check whether message is null-terminated at a reasonable length?
-        if (retVal >= 0)
-        {
-            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
-        }
-        else
-        {
-            // TODO an error occurred; what to do next? call error handler?
-        }
-    }
-
-    friend void log::initLogger(const LogLevel logLevel);
-    friend Logger& log::getLogger();
-    friend Logger* log::setActiveLogger(Logger* newLogger);
-    friend class log::LogStream;
-
     void initLogger(const LogLevel logLevel)
     {
         if (!m_isFinalized.load(std::memory_order_relaxed))
         {
             setLogLevel(logLevel);
+            LoggerImpl::initLogger(logLevel);
             initLoggerHook(logLevel);
             m_isFinalized.store(true, std::memory_order_relaxed);
         }
@@ -205,29 +211,36 @@ class Logger
         }
     }
 
-    template <typename DefaultLogger>
-    static Logger* activeLogger(Logger* newLogger = nullptr);
-
-    template <typename DefaultLogger>
-    static Logger& get()
+    static Logger* activeLogger(Logger* newLogger = nullptr)
     {
-        thread_local static Logger* logger = Logger::activeLogger<DefaultLogger>();
-        if (!logger->m_isActive.load(std::memory_order_relaxed))
+        std::mutex mtx;
+        std::lock_guard<std::mutex> lock(mtx);
+        static Logger defaultLogger;
+        static Logger* logger{&defaultLogger};
+
+        if (newLogger)
         {
-            // no need to loop until m_isActive is true since this is an inherent race
-            //   - the logger needs to be active for the whole lifetime of the application anyway
-            //   - if the logger was changed again, the next call will update the logger
-            //   - furthermore, it is not recommended to change the logger more than once
-            logger = Logger::activeLogger<DefaultLogger>();
+            if (logger->m_isFinalized.load(std::memory_order_relaxed))
+            {
+                logger->setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+                logger->logString("Trying to replace logger after already initialized!");
+                logger->flush();
+                newLogger->setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+                logger->logString("Trying to replace logger after already initialized!");
+                newLogger->flush();
+                // TODO call error handler
+            }
+            else
+            {
+                logger->m_isActive.store(false);
+                logger = newLogger;
+            }
         }
-        return *logger;
+
+        return logger;
     }
 
   private:
-    // TODO with the introduction of m_isActive this shouldn't need to be static -> check ... on the other side, when
-    // the log level shall be changed after Logger::init, this needs to stay an atomic and m_isActive needs to be
-    // changed to a counter with 0 being inactive
-    static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
     std::atomic<bool> m_isFinalized{false};
 
     // TODO make this a compile time option since if will reduce performance but some logger might want to do the
@@ -240,15 +253,11 @@ class Logger
 
   protected:
     std::atomic<bool> m_isActive{true};
-    static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
-    static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
-    thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
-    thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
-    // TODO thread local storage with thread id
 };
 
-class ConsoleLogger : public Logger
+class ConsoleLogger
 {
+    template <typename LoggerImpl>
     friend class Logger;
 
   private:
@@ -263,10 +272,21 @@ class ConsoleLogger : public Logger
     {
     }
 
+  public:
+    static LogLevel getLogLevel()
+    {
+        return m_activeLogLevel.load(std::memory_order_relaxed);
+    }
+
+    void setLogLevel(const LogLevel logLevel)
+    {
+        m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
+    }
+
   protected:
     ConsoleLogger() = default;
 
-    void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel) override
+    void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
     {
         // TODO check all pointer for nullptr
 
@@ -332,7 +352,7 @@ class ConsoleLogger : public Logger
         }
     }
 
-    void flush() override
+    void flush()
     {
         if (std::puts(m_buffer) < 0)
         {
@@ -341,37 +361,79 @@ class ConsoleLogger : public Logger
         m_buffer[0] = 0;
         m_bufferWriteIndex = 0U;
     };
-};
 
-template <typename DefaultLogger>
-inline Logger* Logger::activeLogger(Logger* newLogger)
-{
-    std::mutex mtx;
-    std::lock_guard<std::mutex> lock(mtx);
-    static DefaultLogger defaultLogger;
-    static Logger* logger{&defaultLogger};
-
-    if (newLogger)
+    void logString(const char* message)
     {
-        if (logger->m_isFinalized.load(std::memory_order_relaxed))
+        auto retVal =
+            snprintf(&m_buffer[m_bufferWriteIndex],
+                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
+                     "%s",
+                     message); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        if (retVal >= 0)
         {
-            logger->setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
-            logger->logString("Trying to replace logger after already initialized!");
-            logger->flush();
-            newLogger->setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
-            logger->logString("Trying to replace logger after already initialized!");
-            newLogger->flush();
-            // TODO call error handler
+            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
         }
         else
         {
-            logger->m_isActive.store(false);
-            logger = newLogger;
+            // TODO an error occurred; what to do next? call error handler?
         }
     }
 
-    return logger;
-}
+    // TODO add addBool(const bool), ...
+    void logI64Dec(const int64_t value)
+    {
+        logArithmetik(value, "%li");
+    }
+    void logU64Dec(const uint64_t value)
+    {
+        logArithmetik(value, "%lu");
+    }
+    void logU64Hex(const uint64_t value)
+    {
+        logArithmetik(value, "%x");
+    }
+    void logU64Oct(const uint64_t value)
+    {
+        logArithmetik(value, "%o");
+    }
+
+  private:
+    template <typename T>
+    inline void logArithmetik(const T value, const char* format)
+    {
+        auto retVal =
+            snprintf(&m_buffer[m_bufferWriteIndex],
+                     NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
+                     format,
+                     value); // TODO do we need to check whether message is null-terminated at a reasonable length?
+        if (retVal >= 0)
+        {
+            m_bufferWriteIndex += static_cast<uint32_t>(retVal);
+        }
+        else
+        {
+            // TODO an error occurred; what to do next? call error handler?
+        }
+    }
+
+    void initLogger(const LogLevel)
+    {
+        // nothing to do
+    }
+
+  private:
+    // TODO with the introduction of m_isActive this shouldn't need to be static -> check ... on the other side, when
+    // the log level shall be changed after Logger::init, this needs to stay an atomic and m_isActive needs to be
+    // changed to a counter with 0 being inactive
+    static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
+
+  protected:
+    static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
+    static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
+    thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
+    thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
+    // TODO thread local storage with thread id
+};
 
 } // namespace pbb
 } // namespace iox

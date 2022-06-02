@@ -192,18 +192,9 @@ class LogStream
     }
 
   private:
-    Logger& m_logger{getLogger()};
+    Logger& m_logger{Logger::get()};
     bool m_flushed{false};
 };
-
-
-// clang-format off
-
-// TODO cmake target iceoryx_hoofs_log with
-// - void initLogger(LogLevel level, bool useColors, bool printDate, bool printLogLevel, bool printFile, bool printFunction); // environment variables could be used to get the values for the parameters, e.g. initLogger(logLevelFromEnv(), useColorsFromEnvOr(true), ...)
-// - std::span<char, size_t> getLogBuffer();
-
-// clang-format on
 
 } // namespace log
 } // namespace iox

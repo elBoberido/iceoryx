@@ -30,7 +30,7 @@ using namespace iox::log;
 TEST(iox_log_test, LogLevelIsSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cbfc1b9d-d770-441c-b53d-11b1685ca0b4");
-    auto& logger = getLogger();
+    auto& logger = Logger::get();
 
     iox_set_loglevel(Iceoryx_LogLevel_Off);
     EXPECT_EQ(logger.getLogLevel(), LogLevel::OFF);

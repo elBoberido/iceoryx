@@ -112,7 +112,7 @@ int main()
 {
     // set the log level to error to see the essence of the example
     //! [log level]
-    iox::log::initLogger(iox::log::logLevelFromEnvOr(iox::log::LogLevel::ERROR));
+    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::ERROR));
     //! [log level]
 
     //! [roudi config]

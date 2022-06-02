@@ -26,10 +26,10 @@ namespace platform
 {
 using LogLevel = pbb::LogLevel;
 using pbb::asStringLiteral;
+using pbb::logLevelFromEnvOr;
 
-using Logger = pbb::Logger;
-using DefaultLogger = pbb::ConsoleLogger;
-using TestingLoggerBase = pbb::ConsoleLogger;
+using Logger = pbb::Logger<pbb::ConsoleLogger>;
+using TestingLoggerBase = pbb::Logger<pbb::ConsoleLogger>;
 
 } // namespace platform
 } // namespace iox

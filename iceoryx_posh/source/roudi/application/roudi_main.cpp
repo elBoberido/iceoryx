@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) noexcept
         return EXIT_FAILURE;
     }
 
-    iox::log::initLogger(iox::log::logLevelFromEnvOr(static_cast<iox::log::LogLevel>(cmdLineArgs->logLevel)));
+    iox::log::Logger::init(iox::log::logLevelFromEnvOr(static_cast<iox::log::LogLevel>(cmdLineArgs->logLevel)));
 
     iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineArgs.value());
 
