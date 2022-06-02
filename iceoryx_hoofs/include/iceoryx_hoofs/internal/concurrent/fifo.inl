@@ -26,9 +26,15 @@ namespace concurrent
 template <class ValueType, uint64_t Capacity>
 inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r) noexcept
 {
+    return !try_push(f_param_r).has_error();
+}
+
+template <class ValueType, uint64_t Capacity>
+inline cxx::expected<uint64_t> FiFo<ValueType, Capacity>::try_push(const ValueType& f_param_r) noexcept
+{
     if (is_full())
     {
-        return false;
+        return cxx::error<uint64_t>(m_write_pos.load(std::memory_order_relaxed));
     }
     else
     {
@@ -37,10 +43,10 @@ inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r) noexcept
 
         // m_write_pos must be increased after writing the new value otherwise
         // it is possible that the value is read by pop while it is written.
-        // this fifo is a single producer, single consumer fifo therefore
+        // this fifo is a single producer, multi consumer fifo therefore
         // store is allowed.
         m_write_pos.store(currentWritePos + 1, std::memory_order_release);
-        return true;
+        return cxx::success<>();
     }
 }
 
@@ -71,25 +77,40 @@ inline bool FiFo<ValueType, Capacity>::empty() const noexcept
 template <class ValueType, uint64_t Capacity>
 inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
 {
-    auto currentReadPos = m_read_pos.load(std::memory_order_relaxed);
+    return try_pop_from_index(cxx::nullopt);
+}
+
+template <class ValueType, uint64_t Capacity>
+inline cxx::optional<ValueType>
+FiFo<ValueType, Capacity>::try_pop_from_index(const cxx::optional<uint64_t> read_pos) noexcept
+{
+    auto currentReadPos = m_read_pos.load(std::memory_order_acquire);
+    if (read_pos && *read_pos != currentReadPos)
+    {
+        return cxx::nullopt;
+    }
+
     bool isEmpty = (currentReadPos ==
                     // we are not allowed to use the empty method since we have to sync with
                     // the producer pop - this is done here
                     m_write_pos.load(std::memory_order_acquire));
-    if (isEmpty)
+    if (!isEmpty)
     {
-        return cxx::nullopt_t();
-    }
-    else
-    {
+        // TODO the ActiveObject uses the FiFo with a non trivially copyable object
+        // add template parameter to switch between single/multi producer and then enable the static_assert
+        // static_assert(std::is_trivially_copyable<ValueType>::value, "prevent frankenstein objects");
         ValueType out = m_data[currentReadPos % Capacity];
 
         // m_read_pos must be increased after reading the pop'ed value otherwise
         // it is possible that the pop'ed value is overwritten by push while it is read.
-        // Implementing a single consumer fifo here allows us to use store.
-        m_read_pos.store(currentReadPos + 1, std::memory_order_relaxed);
-        return out;
+        // Implementing a multi consumer fifo here requires us to use compare_exchange_strong.
+        if (m_read_pos.compare_exchange_strong(currentReadPos, currentReadPos + 1, std::memory_order_release))
+        {
+            return out;
+        }
     }
+
+    return cxx::nullopt;
 }
 } // namespace concurrent
 } // namespace iox

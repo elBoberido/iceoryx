@@ -117,4 +117,49 @@ TEST_F(FiFo_Test, OverflowFromFullToEmptyRepetition)
         EXPECT_THAT(sut.empty(), Eq(true));
     }
 }
+
+class Schizo_FiFo_Test : public Test
+{
+  public:
+    void SetUp()
+    {
+    }
+
+    void TearDown()
+    {
+    }
+
+    SchizoFiFo<int, FIFO_CAPACITY> sut;
+};
+
+TEST_F(Schizo_FiFo_Test, PushTillCapacityPlusOneResultsInNoOverflow)
+{
+    for (size_t i = 0; i < FIFO_CAPACITY + 1; ++i)
+    {
+        EXPECT_THAT(sut.push(i), Eq(iox::cxx::nullopt));
+    }
+}
+
+TEST_F(Schizo_FiFo_Test, PushTillCapacityPlusTwoResultsInOverflow)
+{
+    for (size_t i = 0; i < FIFO_CAPACITY + 1; ++i)
+    {
+        EXPECT_THAT(sut.push(i), Eq(iox::cxx::nullopt));
+    }
+    EXPECT_THAT(sut.push(FIFO_CAPACITY + 2), Eq(iox::cxx::optional<int>(0)));
+}
+
+TEST_F(Schizo_FiFo_Test, PushTillCapacityPlusOneWithoutOverflow)
+{
+    for (size_t i = 0; i < FIFO_CAPACITY + 1; ++i)
+    {
+        EXPECT_THAT(sut.push(i), Eq(iox::cxx::nullopt));
+    }
+
+    for (size_t i = 0; i < FIFO_CAPACITY + 1; ++i)
+    {
+        EXPECT_THAT(sut.pop(), Eq(iox::cxx::optional<int>(i)));
+    }
+}
+
 } // namespace
