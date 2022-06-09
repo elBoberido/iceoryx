@@ -104,18 +104,20 @@ class Logger : public platform::TestingLoggerBase
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&) = delete;
 
-    void flush() override
+    void flushHook() override
     {
         std::lock_guard<std::mutex> lock(m_logBufferMutex);
-        m_logBuffer.emplace_back(m_buffer, m_bufferWriteIndex);
+        const auto buffer = Base::getLogBuffer();
+        const auto logEntry = std::get<0>(buffer);
+        const auto size = std::get<1>(buffer);
+        m_logBuffer.emplace_back(logEntry, size);
 
         if (m_allowLog)
         {
             Base::flush();
         }
 
-        m_buffer[0] = 0;
-        m_bufferWriteIndex = 0U;
+        Base::assumeFlushed();
     }
 
     // TODO use smart_lock

@@ -23,6 +23,7 @@
 #include <cstring>
 #include <ctime>
 #include <mutex>
+#include <tuple>
 
 namespace iox
 {
@@ -117,52 +118,55 @@ class Logger : public LoggerImpl
 
     static LogLevel getLogLevel()
     {
-        return LoggerImpl::getLogLevel();
+        return LoggerImpl::getLogLevelHook();
     }
 
     void setLogLevel(const LogLevel logLevel)
     {
-        LoggerImpl::setLogLevel(logLevel);
+        LoggerImpl::setLogLevelHook(logLevel);
     }
 
   protected:
-    // TODO instead of setupNewLogMessage LoggerImpl::setupNewLogMessage could be virtual; maybe with another name
-    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+    void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
     {
-        LoggerImpl::setupNewLogMessage(file, line, function, logLevel);
+        LoggerImpl::setupNewLogMessageHook(file, line, function, logLevel);
     }
-    // TODO instead of flush LoggerImpl::flush could be virtual; maybe with another name
-    virtual void flush()
+    void flush()
     {
-        LoggerImpl::flush();
+        LoggerImpl::flushHook();
     }
 
-    // instead of having this here, it could also be moved to the impl
-    virtual void initLoggerHook(const LogLevel)
+    std::tuple<const char*, uint64_t> getLogBuffer() const
     {
+        return LoggerImpl::getLogBufferHook();
+    }
+
+    void assumeFlushed()
+    {
+        return LoggerImpl::assumeFlushedHook();
     }
 
     void logString(const char* message)
     {
-        LoggerImpl::logString(message);
+        LoggerImpl::logStringHook(message);
     }
 
     // TODO add addBool(const bool), ...
     void logI64Dec(const int64_t value)
     {
-        LoggerImpl::logI64Dec(value);
+        LoggerImpl::logI64DecHook(value);
     }
     void logU64Dec(const uint64_t value)
     {
-        LoggerImpl::logU64Dec(value);
+        LoggerImpl::logU64DecHook(value);
     }
     void logU64Hex(const uint64_t value)
     {
-        LoggerImpl::logU64Hex(value);
+        LoggerImpl::logU64HexHook(value);
     }
     void logU64Oct(const uint64_t value)
     {
-        LoggerImpl::logU64Oct(value);
+        LoggerImpl::logU64OctHook(value);
     }
 
   public:
@@ -198,8 +202,7 @@ class Logger : public LoggerImpl
         if (!m_isFinalized.load(std::memory_order_relaxed))
         {
             setLogLevel(logLevel);
-            LoggerImpl::initLogger(logLevel);
-            initLoggerHook(logLevel);
+            LoggerImpl::initLoggerHook(logLevel);
             m_isFinalized.store(true, std::memory_order_relaxed);
         }
         else
@@ -272,21 +275,20 @@ class ConsoleLogger
     {
     }
 
-  public:
-    static LogLevel getLogLevel()
+  protected:
+    ConsoleLogger() = default;
+
+    static LogLevel getLogLevelHook()
     {
         return m_activeLogLevel.load(std::memory_order_relaxed);
     }
 
-    void setLogLevel(const LogLevel logLevel)
+    void setLogLevelHook(const LogLevel logLevel)
     {
         m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
     }
 
-  protected:
-    ConsoleLogger() = default;
-
-    void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+    virtual void setupNewLogMessageHook(const char* file, const int line, const char* function, LogLevel logLevel)
     {
         // TODO check all pointer for nullptr
 
@@ -352,17 +354,27 @@ class ConsoleLogger
         }
     }
 
-    void flush()
+    virtual void flushHook()
     {
         if (std::puts(m_buffer) < 0)
         {
             // TODO an error occurred; what to do next? call error handler?
         }
-        m_buffer[0] = 0;
-        m_bufferWriteIndex = 0U;
+        assumeFlushedHook();
     };
 
-    void logString(const char* message)
+    std::tuple<const char*, uint64_t> getLogBufferHook() const
+    {
+        return std::make_tuple(m_buffer, m_bufferWriteIndex);
+    }
+
+    void assumeFlushedHook()
+    {
+        m_buffer[0] = 0;
+        m_bufferWriteIndex = 0;
+    }
+
+    void logStringHook(const char* message)
     {
         auto retVal =
             snprintf(&m_buffer[m_bufferWriteIndex],
@@ -380,21 +392,26 @@ class ConsoleLogger
     }
 
     // TODO add addBool(const bool), ...
-    void logI64Dec(const int64_t value)
+    void logI64DecHook(const int64_t value)
     {
         logArithmetik(value, "%li");
     }
-    void logU64Dec(const uint64_t value)
+    void logU64DecHook(const uint64_t value)
     {
         logArithmetik(value, "%lu");
     }
-    void logU64Hex(const uint64_t value)
+    void logU64HexHook(const uint64_t value)
     {
         logArithmetik(value, "%x");
     }
-    void logU64Oct(const uint64_t value)
+    void logU64OctHook(const uint64_t value)
     {
         logArithmetik(value, "%o");
+    }
+
+    virtual void initLoggerHook(const LogLevel)
+    {
+        // nothing to do
     }
 
   private:
@@ -416,18 +433,12 @@ class ConsoleLogger
         }
     }
 
-    void initLogger(const LogLevel)
-    {
-        // nothing to do
-    }
-
   private:
     // TODO with the introduction of m_isActive this shouldn't need to be static -> check ... on the other side, when
     // the log level shall be changed after Logger::init, this needs to stay an atomic and m_isActive needs to be
     // changed to a counter with 0 being inactive
     static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
 
-  protected:
     static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
     static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
     thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
