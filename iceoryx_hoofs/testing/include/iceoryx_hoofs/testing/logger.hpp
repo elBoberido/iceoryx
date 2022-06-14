@@ -104,7 +104,7 @@ class Logger : public platform::TestingLoggerBase
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&) = delete;
 
-    void flushHook() override
+    void flush() override
     {
         std::lock_guard<std::mutex> lock(m_logBufferMutex);
         const auto buffer = Base::getLogBuffer();

@@ -116,64 +116,12 @@ class Logger : public LoggerImpl
         return Logger::IGNORE_ACTIVE_LOG_LEVEL;
     }
 
-    static LogLevel getLogLevel()
-    {
-        return LoggerImpl::getLogLevelHook();
-    }
-
-    void setLogLevel(const LogLevel logLevel)
-    {
-        LoggerImpl::setLogLevelHook(logLevel);
-    }
-
-  protected:
-    void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
-    {
-        LoggerImpl::setupNewLogMessageHook(file, line, function, logLevel);
-    }
-    void flush()
-    {
-        LoggerImpl::flushHook();
-    }
-
-    std::tuple<const char*, uint64_t> getLogBuffer() const
-    {
-        return LoggerImpl::getLogBufferHook();
-    }
-
-    void assumeFlushed()
-    {
-        return LoggerImpl::assumeFlushedHook();
-    }
-
-    void logString(const char* message)
-    {
-        LoggerImpl::logStringHook(message);
-    }
-
-    // TODO add addBool(const bool), ...
-    void logI64Dec(const int64_t value)
-    {
-        LoggerImpl::logI64DecHook(value);
-    }
-    void logU64Dec(const uint64_t value)
-    {
-        LoggerImpl::logU64DecHook(value);
-    }
-    void logU64Hex(const uint64_t value)
-    {
-        LoggerImpl::logU64HexHook(value);
-    }
-    void logU64Oct(const uint64_t value)
-    {
-        LoggerImpl::logU64OctHook(value);
-    }
-
   public:
     friend class log::LogStream;
 
     static Logger& get()
     {
+        // TODO is static required with thread_local
         thread_local static Logger* logger = Logger::activeLogger();
         if (!logger->m_isActive.load(std::memory_order_relaxed))
         {
@@ -188,7 +136,7 @@ class Logger : public LoggerImpl
 
     static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO))
     {
-        Logger::get().initLogger(logLevel);
+        Logger::get().initLoggerInternal(logLevel);
     }
 
     static void setActiveLogger(Logger* newLogger)
@@ -197,26 +145,26 @@ class Logger : public LoggerImpl
     }
 
   private:
-    void initLogger(const LogLevel logLevel)
+    void initLoggerInternal(const LogLevel logLevel)
     {
         if (!m_isFinalized.load(std::memory_order_relaxed))
         {
-            setLogLevel(logLevel);
-            LoggerImpl::initLoggerHook(logLevel);
+            LoggerImpl::setLogLevel(logLevel);
+            LoggerImpl::initLogger(logLevel);
             m_isFinalized.store(true, std::memory_order_relaxed);
         }
         else
         {
-            setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
-            logString("Multiple initLogger calls");
-            flush();
+            LoggerImpl::setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+            LoggerImpl::logString("Multiple initLogger calls");
+            LoggerImpl::flush();
             // TODO call error handler
         }
     }
 
     static Logger* activeLogger(Logger* newLogger = nullptr)
     {
-        std::mutex mtx;
+        static std::mutex mtx;
         std::lock_guard<std::mutex> lock(mtx);
         static Logger defaultLogger;
         static Logger* logger{&defaultLogger};
@@ -244,6 +192,7 @@ class Logger : public LoggerImpl
     }
 
   private:
+    std::atomic<bool> m_isActive{true};
     std::atomic<bool> m_isFinalized{false};
 
     // TODO make this a compile time option since if will reduce performance but some logger might want to do the
@@ -253,16 +202,10 @@ class Logger : public LoggerImpl
     // TODO compile time option for minimal compiled log level, i.e. all lower log level should be optimized out
     // this is different than IGNORE_ACTIVE_LOG_LEVEL since m_activeLogLevel could still be set to off
     static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
-
-  protected:
-    std::atomic<bool> m_isActive{true};
 };
 
 class ConsoleLogger
 {
-    template <typename LoggerImpl>
-    friend class Logger;
-
   private:
     template <uint32_t N>
     static constexpr uint32_t bufferSize(const char (&)[N])
@@ -275,20 +218,21 @@ class ConsoleLogger
     {
     }
 
-  protected:
-    ConsoleLogger() = default;
-
-    static LogLevel getLogLevelHook()
+  public:
+    static LogLevel getLogLevel()
     {
         return m_activeLogLevel.load(std::memory_order_relaxed);
     }
 
-    void setLogLevelHook(const LogLevel logLevel)
+    void setLogLevel(const LogLevel logLevel)
     {
         m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
     }
 
-    virtual void setupNewLogMessageHook(const char* file, const int line, const char* function, LogLevel logLevel)
+  protected:
+    ConsoleLogger() = default;
+
+    virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
     {
         // TODO check all pointer for nullptr
 
@@ -354,27 +298,27 @@ class ConsoleLogger
         }
     }
 
-    virtual void flushHook()
+    virtual void flush()
     {
         if (std::puts(m_buffer) < 0)
         {
             // TODO an error occurred; what to do next? call error handler?
         }
-        assumeFlushedHook();
+        assumeFlushed();
     };
 
-    std::tuple<const char*, uint64_t> getLogBufferHook() const
+    std::tuple<const char*, uint64_t> getLogBuffer() const
     {
         return std::make_tuple(m_buffer, m_bufferWriteIndex);
     }
 
-    void assumeFlushedHook()
+    void assumeFlushed()
     {
         m_buffer[0] = 0;
         m_bufferWriteIndex = 0;
     }
 
-    void logStringHook(const char* message)
+    void logString(const char* message)
     {
         auto retVal =
             snprintf(&m_buffer[m_bufferWriteIndex],
@@ -392,24 +336,24 @@ class ConsoleLogger
     }
 
     // TODO add addBool(const bool), ...
-    void logI64DecHook(const int64_t value)
+    void logI64Dec(const int64_t value)
     {
         logArithmetik(value, "%li");
     }
-    void logU64DecHook(const uint64_t value)
+    void logU64Dec(const uint64_t value)
     {
         logArithmetik(value, "%lu");
     }
-    void logU64HexHook(const uint64_t value)
+    void logU64Hex(const uint64_t value)
     {
         logArithmetik(value, "%x");
     }
-    void logU64OctHook(const uint64_t value)
+    void logU64Oct(const uint64_t value)
     {
         logArithmetik(value, "%o");
     }
 
-    virtual void initLoggerHook(const LogLevel)
+    virtual void initLogger(const LogLevel)
     {
         // nothing to do
     }

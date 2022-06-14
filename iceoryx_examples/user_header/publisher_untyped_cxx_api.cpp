@@ -41,7 +41,7 @@ class MyLogger : public iox::log::Logger
     }
 
   private:
-    void setupNewLogMessageHook(const char*, const int, const char*, iox::log::LogLevel logLevel) override
+    void setupNewLogMessage(const char*, const int, const char*, iox::log::LogLevel logLevel) override
     {
         switch (logLevel)
         {
@@ -68,7 +68,7 @@ class MyLogger : public iox::log::Logger
         }
     }
 
-    void flushHook() override
+    void flush() override
     {
         const auto buffer = iox::log::Logger::getLogBuffer();
         const auto logEntry = std::get<0>(buffer);
