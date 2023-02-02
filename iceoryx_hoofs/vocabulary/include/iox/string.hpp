@@ -23,6 +23,8 @@
 #include "iox/detail/string_type_traits.hpp"
 #include "iox/optional.hpp"
 
+#include "iceoryx_hoofs/log/logging.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
@@ -32,7 +34,7 @@ namespace iox
 {
 namespace log
 {
-class LogStream;
+// class LogStream;
 }
 // AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 

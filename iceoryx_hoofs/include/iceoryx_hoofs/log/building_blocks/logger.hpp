@@ -29,8 +29,6 @@ namespace iox
 {
 namespace log
 {
-class LogStream;
-
 /// @todo iox-#1755 move this to e.g. helplets once we are able to depend on on it
 /// @brief Compares C-style strings with a char array, i.g. string literal for equality
 /// @tparam[in] N size of the char array
@@ -52,6 +50,9 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept;
 
 namespace internal
 {
+template <typename T>
+class LogStream;
+
 /// @brief This class acts as common interface for the Logger. It provides the common functionality and inherits from
 /// the BaseLogger which is provided as template parameter. Please have a look at the design document for more details.
 /// @tparam[in] BaseLogger is the actual implementation
@@ -59,7 +60,7 @@ template <typename BaseLogger>
 class Logger : public BaseLogger
 {
   public:
-    friend class log::LogStream;
+    friend class LogStream<Logger>;
 
     Logger() = default;
 

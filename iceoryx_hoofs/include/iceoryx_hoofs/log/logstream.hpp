@@ -27,14 +27,19 @@ namespace iox
 {
 namespace log
 {
+namespace internal
+{
+template <typename Logger>
 class LogStream;
+}
 
 /// @brief Helper struct to log in hexadecimal format
 template <typename T>
 class LogHex
 {
   public:
-    friend class LogStream;
+    template <typename Logger>
+    friend class internal::LogStream;
 
     template <typename = std::enable_if_t<std::is_arithmetic<T>::value || std::is_pointer<T>::value>>
     explicit constexpr LogHex(const T value) noexcept;
@@ -62,7 +67,8 @@ template <typename T>
 class LogOct
 {
   public:
-    friend class LogStream;
+    template <typename Logger>
+    friend class internal::LogStream;
 
     template <typename = std::enable_if_t<std::is_integral<T>::value>>
     inline explicit constexpr LogOct(const T value) noexcept;
@@ -90,6 +96,9 @@ inline constexpr LogOct<T> oct(const T value) noexcept;
 ///     return stream;
 /// }
 /// @endcode
+namespace internal
+{
+template <typename Logger>
 class LogStream
 {
   public:
@@ -226,6 +235,8 @@ class LogStream
     /// @todo iox-#1755 workaround due to deactivation of lazy evaluation
     bool m_doFlush{true};
 };
+} // namespace internal
+using LogStream = internal::LogStream<Logger>;
 
 namespace internal
 {

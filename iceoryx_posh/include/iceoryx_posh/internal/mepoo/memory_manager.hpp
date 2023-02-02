@@ -27,6 +27,8 @@
 #include "iox/expected.hpp"
 #include "iox/memory.hpp"
 
+#include "iceoryx_hoofs/log/logging.hpp"
+
 #include <cstdint>
 #include <limits>
 
@@ -38,7 +40,7 @@ namespace iox
 {
 namespace log
 {
-class LogStream;
+// class LogStream;
 }
 namespace mepoo
 {

@@ -19,11 +19,13 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 
+#include "iceoryx_hoofs/log/logging.hpp"
+
 namespace iox
 {
 namespace log
 {
-class LogStream;
+// class LogStream;
 }
 namespace capro
 {
