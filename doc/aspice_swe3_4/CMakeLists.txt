@@ -27,8 +27,8 @@ set(DOXYGEN_GENERATE_LATEX YES)
 set(DOXYGEN_GENERATE_XML YES)
 set(DOXYGEN_XML_OUTPUT xml)
 # if some header need to be excluded from the exclude pattern have a look at INCLUDE_DIR_AND_ADDITIONAL_FILES below
-set(DOXYGEN_EXCLUDE_PATTERNS "*/internal/*")
-set(DOXYGEN_EXCLUDE_SYMBOLS "internal::*")
+set(DOXYGEN_EXCLUDE_PATTERNS "*/internal/*" "*/detail/*")
+set(DOXYGEN_EXCLUDE_SYMBOLS "*::internal" "*::internal::*" "*::detail" "*::detail::*")
 
 if(EXISTS "/usr/share/plantuml/plantuml.jar")
   set(DOXYGEN_PLANTUML_JAR_PATH /usr/share/plantuml/plantuml.jar)
