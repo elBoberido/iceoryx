@@ -57,6 +57,13 @@ set(COMPONENTS iceoryx_platform iceoryx_hoofs iceoryx_posh iceoryx_binding_c
               iceoryx_component)
 set(COMPONENT_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_platform/generic
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_posh
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_binding_c
+    ${CMAKE_CURRENT_SOURCE_DIR}/example/iceoryx_component
+)
+
+set(HOOFS_SUBCOMPONENT_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/buffer
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/cli
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/concurrent/buffer
@@ -65,7 +72,6 @@ set(COMPONENT_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/design
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/filesystem
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/functional
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/legacy/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/memory
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/posix/auth
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/posix/desig
@@ -80,10 +86,7 @@ set(COMPONENT_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/time
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/utility
     ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_hoofs/vocabulary
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_posh
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../iceoryx_binding_c
-    ${CMAKE_CURRENT_SOURCE_DIR}/example/iceoryx_component)
-
+)
 
 list(LENGTH COMPONENTS tmp_len)
 math(EXPR cmp_len "${tmp_len} - 1")
@@ -92,14 +95,21 @@ foreach(val RANGE ${cmp_len})
   list(GET COMPONENTS ${val} cmp)
   list(GET COMPONENT_DIRS ${val} cmp_dir)
 
-  set(DOXYGEN_STRIP_FROM_INC_PATH "${cmp_dir}/include")
   set(DOXYGEN_PROJECT_NAME "${cmp}")
   message(STATUS "${cmp}  ${cmp_dir}")
 
   set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/doc/${cmp})
 
-  set(INCLUDE_DIR_AND_ADDITIONAL_FILES ${cmp_dir}/include)
-  if(${cmp} STREQUAL iceoryx_posh)
+  if(${cmp} STREQUAL iceoryx_hoofs)
+    set(DOXYGEN_STRIP_FROM_INC_PATH)
+    set(INCLUDE_DIR_AND_ADDITIONAL_FILES)
+    foreach(subcmp_dir IN LISTS HOOFS_SUBCOMPONENT_DIRS)
+      list(APPEND DOXYGEN_STRIP_FROM_INC_PATH ${subcmp_dir}/include)
+      list(APPEND INCLUDE_DIR_AND_ADDITIONAL_FILES ${subcmp_dir}/include)
+    endforeach()
+  elseif(${cmp} STREQUAL iceoryx_posh)
+    set(DOXYGEN_STRIP_FROM_INC_PATH "${cmp_dir}/include")
+    set(INCLUDE_DIR_AND_ADDITIONAL_FILES ${cmp_dir}/include)
     list(APPEND INCLUDE_DIR_AND_ADDITIONAL_FILES
       ${cmp_dir}/include/iceoryx_posh/internal/popo/base_client.hpp
       ${cmp_dir}/include/iceoryx_posh/internal/popo/base_publisher.hpp
@@ -114,11 +124,14 @@ foreach(val RANGE ${cmp_len})
       ${cmp_dir}/include/iceoryx_posh/internal/popo/untyped_server_impl.hpp
       ${cmp_dir}/include/iceoryx_posh/internal/popo/untyped_subscriber_impl.hpp
     )
+  else()
+    set(DOXYGEN_STRIP_FROM_INC_PATH "${cmp_dir}/include")
+    set(INCLUDE_DIR_AND_ADDITIONAL_FILES ${cmp_dir}/include)
   endif()
 
   doxygen_add_docs(doxygen_${cmp}
                   ${INCLUDE_DIR_AND_ADDITIONAL_FILES}
-                  WORKING_DIRECTORY ${cmp_dir}/include
+                  WORKING_DIRECTORY ${cmp_dir}
                   ALL)
 endforeach()
 
