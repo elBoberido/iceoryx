@@ -2,4 +2,4 @@
 title: Implementing event triggered callbacks using C
 ---
 
-{! ../iceoryx/iceoryx_examples/callbacks_in_c/README.md !}
+{! ../iceoryx/build_website/iceoryx_examples/callbacks_in_c/README.md !}

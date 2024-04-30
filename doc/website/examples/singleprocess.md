@@ -2,4 +2,4 @@
 title: Communicating in a single process between threads
 ---
 
-{! ../iceoryx/iceoryx_examples/singleprocess/README.md !}
+{! ../iceoryx/build_website/iceoryx_examples/singleprocess/README.md !}

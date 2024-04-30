@@ -2,4 +2,4 @@
 title: Sending/receiving some of the iceoryx STL container surrogates
 ---
 
-{! ../iceoryx/iceoryx_examples/complexdata/README.md !}
+{! ../iceoryx/build_website/iceoryx_examples/complexdata/README.md !}

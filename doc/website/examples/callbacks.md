@@ -2,4 +2,4 @@
 title: Implementing event triggered callbacks using C++
 ---
 
-{! ../iceoryx/iceoryx_examples/callbacks/README.md !}
+{! ../iceoryx/build_website/iceoryx_examples/callbacks/README.md !}

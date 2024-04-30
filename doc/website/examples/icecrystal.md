@@ -2,4 +2,4 @@
 title: Using the introspection client for debugging
 ---
 
-{! ../iceoryx/iceoryx_examples/icecrystal/Readme.md !}
+{! ../iceoryx/build_website/iceoryx_examples/icecrystal/Readme.md !}
