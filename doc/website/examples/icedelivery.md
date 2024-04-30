@@ -2,4 +2,4 @@
 title: Sending and receiving data using C++
 ---
 
-{! ../iceoryx/iceoryx_examples/icedelivery/README.md !}
+{! ../iceoryx/build_website/iceoryx_examples/icedelivery/README.md !}

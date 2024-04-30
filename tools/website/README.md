@@ -21,7 +21,12 @@ unzip doxybook2-linux-amd64-v1.5.0.zip
 
 # Run script
 
-For a local test this command can be used, e.g. for `v3.0.0` on the `release_3.0` branch
+For a local test run this command
 ```
-tools/website/export-docu-to-website.sh local v3.0.0 release_3.0
+tools/website/website-generator.sh clean serve
+```
+
+For publishing preparation run this command
+```
+tools/website/website-generator.sh clean --prepare-publish v3.0.0
 ```

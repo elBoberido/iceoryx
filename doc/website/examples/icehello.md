@@ -2,4 +2,4 @@
 title: Sending data to another process
 ---
 
-{! ../iceoryx/iceoryx_examples/icehello/README.md !}
+{! ../iceoryx/build_website/iceoryx_examples/icehello/README.md !}
