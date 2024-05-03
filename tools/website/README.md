@@ -8,7 +8,7 @@ apt install doxygen mkdocs pip unzip wget
 
 ## Python packages
 
-- pip install markdown_include mkdocs-material mkdocs-material-extensions mkdocs-awesome-pages-plugin mkdocs-autolinks-plugin
+- pip install markdown_include mkdocs-material mkdocs-material-extensions mkdocs-awesome-pages-plugin mkdocs-autolinks-plugin mike
 
 ## Doxybook
 

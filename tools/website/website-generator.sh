@@ -70,7 +70,7 @@ while (( "$#" )); do
     "--prepare-publish")
         VERSION=$2
         DO_PREPARE_PUBLISH=true
-        shift 1
+        shift 2
         ;;
     "serve")
         DO_SERVE=true
@@ -125,10 +125,19 @@ mkdir -p "$WORKSPACE"/build_website
 cp -R "$WORKSPACE"/doc/website "$WORKSPACE"/build_website/
 cp -R "$WORKSPACE"/iceoryx_examples "$WORKSPACE"/build_website/
 
-if [[ $NO_DOXYGEN == true ]]; then
-    mkdir -p "$WORKSPACE"/build_website/website/API-reference/
-    touch "$WORKSPACE"/build_website/website/API-reference/dummy.md
-else
+mkdir -p "$WORKSPACE"/build_website/website/API-reference/hoofs
+cp "$WORKSPACE"/iceoryx_hoofs/README.md "$WORKSPACE"/build_website/website/API-reference/hoofs
+mkdir -p "$WORKSPACE"/build_website/website/API-reference/c-binding
+cp "$WORKSPACE"/iceoryx_binding_c/README.md "$WORKSPACE"/build_website/website/API-reference/c-binding
+
+# fix some links (print0 is used to avoid issues with files containing spaces in their name)
+DOWN="\.\.\/"
+sed -i "s/${DOWN}iceoryx_examples/${DOWN}${DOWN}examples/g" "$WORKSPACE"/build_website/website/API-reference/c-binding/README.md
+sed -i 's/\.\.\/doc\/design/https\:\/\/github\.com\/eclipse-iceoryx\/iceoryx\/tree\/main\/doc\/design/g' "$WORKSPACE"/build_website/website/API-reference/hoofs/README.md
+find "$WORKSPACE"/build_website/website -type f -name "*.md" -print0 | xargs -0 sed -i 's/\.\.\/\.\.\/iceoryx_examples/examples/g'
+find "$WORKSPACE"/build_website/website -type f -name "*.md" -print0 | xargs -0 sed -i 's/\.\.\/iceoryx_examples/examples/g'
+
+if [[ $NO_DOXYGEN == false ]]; then
     echo " [i] Generating doxygen"
 
     cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
@@ -191,11 +200,12 @@ fi
 
 if [[ $DO_PREPARE_PUBLISH == true ]]; then
     # Generate HTML and push to GitHub pages
-    if [ ! -d "$WORKSPACE/../iceoryx-web" ]; then
-        cd "$WORKSPACE"/../
+    if [ ! -d "$WORKSPACE"/build_website/git/iceoryx-web ]; then
+        mkdir -p "$WORKSPACE"/build_website/git
+        cd "$WORKSPACE"/build_website/git
         git clone $WEBREPO
     fi
-    cd "$WORKSPACE"/../iceoryx-web
-    mike deploy --branch main --config-file ../iceoryx/mkdocs.yml --update-aliases "$VERSION" latest
+    cd "$WORKSPACE"/build_website/git/iceoryx-web
+    mike deploy --branch main --config-file "$WORKSPACE"/mkdocs.yml --update-aliases "$VERSION" latest
     echo "you need to push the changes to upstream"
 fi
