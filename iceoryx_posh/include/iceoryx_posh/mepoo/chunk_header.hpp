@@ -40,7 +40,9 @@ struct NoUserHeader
 {
 };
 
-struct ChunkHeader
+// NOTE: alignas(8) is required for 32 bit builds to ensure an alignment on 8 byte boundaries; on some 32 bit platforms
+// uint64_t is aligned to 4 bytes
+struct alignas(8) ChunkHeader
 {
     using UserPayloadOffset_t = uint32_t;
 
