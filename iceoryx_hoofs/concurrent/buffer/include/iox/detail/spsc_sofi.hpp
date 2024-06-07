@@ -161,6 +161,7 @@ class SpscSofi
     /// reordered (read or written too late)
     std::atomic<uint64_t> m_readPosition{0};
     std::atomic<uint64_t> m_writePosition{0};
+    static_assert(std::atomic<uint64_t>::is_always_lock_free, "std::atomic<uint64_t> must be lock-free!");
 };
 
 } // namespace concurrent

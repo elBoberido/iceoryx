@@ -113,6 +113,7 @@ class MpmcLockFreeQueue
     UninitializedArray<ElementType, Capacity> m_buffer;
 
     std::atomic<uint64_t> m_size{0U};
+    static_assert(std::atomic<uint64_t>::is_always_lock_free, "std::atomic<uint64_t> must be lock-free!");
 
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)

@@ -110,6 +110,7 @@ class MpmcIndexQueue
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
     using Index = CyclicIndex<Capacity>;
     using Cell = std::atomic<Index>;
+    static_assert(std::atomic<Index>::is_always_lock_free, "std::atomic<MpmcIndexQueue::Index> must be lock-free!");
 
     /// the array entries have to be initialized explicitly in the constructor since
     /// the default atomic constructor does not call the default constructor of the

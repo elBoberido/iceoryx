@@ -43,9 +43,6 @@ class MpmcLoFFLi
         uint32_t abaCounter;
     };
 
-    static_assert(sizeof(Node) <= NODE_SIZE,
-                  "The size of 'Node' must not exceed 8 bytes in order to be lock-free on 64 bit systems!");
-
     /// @todo iox-#680 introduce typesafe indices with the properties listed below
     ///       id is required that not two loefflis with the same properties
     ///       mix up the id
@@ -72,6 +69,7 @@ class MpmcLoFFLi
     uint32_t m_size{0U};
     Index_t m_invalidIndex{0U};
     std::atomic<Node> m_head{{0U, 1U}};
+    static_assert(std::atomic<Node>::is_always_lock_free, "std::atomic<MpmcLoFFLi::Node> must be lock-free!");
     iox::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:
