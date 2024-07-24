@@ -25,11 +25,13 @@ namespace popo
 {
 ThreadSafePolicy::ThreadSafePolicy() noexcept
 {
-    MutexBuilder()
-        .isInterProcessCapable(true)
-        .mutexType(MutexType::RECURSIVE)
-        .create(m_mutex)
-        .expect("Failed to create Mutex");
+    /// @todo iox-#2301 fix this with a proper spin-lock implementation
+    // MutexBuilder()
+    //     .isInterProcessCapable(true)
+    //     .mutexType(MutexType::RECURSIVE)
+    //     .create(m_mutex)
+    //     .expect("Failed to create Mutex");
+    m_mutex.emplace();
 }
 
 void ThreadSafePolicy::lock() const noexcept
