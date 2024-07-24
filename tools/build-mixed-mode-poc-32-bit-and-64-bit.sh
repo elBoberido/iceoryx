@@ -77,6 +77,7 @@ fi
 echo -e "${COLOR_GREEN}# Building 64 bit iceoryx${COLOR_RESET}"
 cmake -S iceoryx_meta \
       -B build/64/iceoryx \
+      -DEXAMPLES=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=build/install/64
 cmake --build build/64/iceoryx --target install -- -j$NUM_JOBS
@@ -84,6 +85,7 @@ cmake --build build/64/iceoryx --target install -- -j$NUM_JOBS
 echo -e "${COLOR_GREEN}# Building 32 bit iceoryx${COLOR_RESET}"
 cmake -S iceoryx_meta \
       -B build/32/iceoryx \
+      -DEXAMPLES=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=build/install/32 \
       -DCMAKE_C_FLAGS="-m32 ${MALIGN_DOUBLE_OPTION}" \
