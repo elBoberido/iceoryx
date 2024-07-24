@@ -30,9 +30,11 @@ ConditionVariableData::ConditionVariableData() noexcept
 ConditionVariableData::ConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     : m_runtimeName(runtimeName)
 {
-    UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_semaphore).or_else([](auto) {
-        IOX_REPORT_FATAL(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE);
-    });
+    /// @todo iox-#2301 fix this with a proper spin-lock implementation
+    // UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_semaphore).or_else([](auto) {
+    //     IOX_REPORT_FATAL(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE);
+    // });
+    m_semaphore.emplace();
 
     for (auto& id : m_activeNotifications)
     {

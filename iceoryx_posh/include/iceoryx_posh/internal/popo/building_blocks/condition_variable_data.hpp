@@ -18,7 +18,10 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/posh_error_reporting.hpp"
+#include "iox/deadline_timer.hpp"
+#include "iox/detail/adaptive_wait.hpp"
 #include "iox/unnamed_semaphore.hpp"
 
 #include <atomic>
@@ -27,6 +30,72 @@ namespace iox
 {
 namespace popo
 {
+class SpinLockSemaphore : public detail::SemaphoreInterface<SpinLockSemaphore>
+{
+  public:
+    SpinLockSemaphore()
+        : m_count(0)
+    {
+    }
+
+    ~SpinLockSemaphore()
+    {
+        m_to_be_destroyed = true;
+    }
+
+    expected<void, SemaphoreError> post()
+    {
+        std::lock_guard<SpinlockMutex> lock(spinlock);
+        ++m_count;
+        return ok();
+    }
+
+    expected<void, SemaphoreError> wait()
+    {
+        detail::adaptive_wait spinner;
+        spinner.wait_loop([this] { return !this->tryWait(); });
+        return ok();
+    }
+
+    expected<bool, SemaphoreError> tryWait()
+    {
+        std::lock_guard<SpinlockMutex> lock(spinlock);
+        if (m_to_be_destroyed == true)
+        {
+            return ok(true);
+        }
+        if (m_count > 0)
+        {
+            --m_count;
+            return ok(true);
+        }
+        return ok(false);
+    }
+
+    expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration& timeout)
+    {
+        iox::deadline_timer deadline_timer(timeout);
+        detail::adaptive_wait spinner;
+
+        auto ret_val = SemaphoreWaitState::TIMEOUT;
+        spinner.wait_loop([this, &deadline_timer, &ret_val] {
+            if (this->tryWait())
+            {
+                ret_val = SemaphoreWaitState::NO_TIMEOUT;
+                return false;
+            }
+            return !deadline_timer.hasExpired();
+        });
+
+        return ok(ret_val);
+    }
+
+  private:
+    std::atomic<int32_t> m_count{0};
+    std::atomic<bool> m_to_be_destroyed{false};
+    SpinlockMutex spinlock;
+};
+
 struct ConditionVariableData
 {
     ConditionVariableData() noexcept;
@@ -38,7 +107,7 @@ struct ConditionVariableData
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
     ~ConditionVariableData() noexcept = default;
 
-    optional<UnnamedSemaphore> m_semaphore;
+    optional<SpinLockSemaphore> m_semaphore;
     RuntimeName_t m_runtimeName;
     std::atomic_bool m_toBeDestroyed{false};
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
