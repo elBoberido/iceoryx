@@ -26,6 +26,7 @@ WORKSPACE=$(git rev-parse --show-toplevel)
 NUM_JOBS=$(nproc)
 CLEAN_BUILD=false
 EXPLICIT_ALIGNMENT_FLAG=OFF
+MALIGN_DOUBLE_OPTION=""
 
 while (( "$#" )); do
   case "$1" in
@@ -41,6 +42,10 @@ while (( "$#" )); do
         EXPLICIT_ALIGNMENT_FLAG=ON
         shift 1
         ;;
+    "malign-double")
+        MALIGN_DOUBLE_OPTION="-malign-double"
+        shift 1
+        ;;
     "help")
         echo "Build script for the 32-64 bit mixed mode PoC."
         echo ""
@@ -48,6 +53,8 @@ while (( "$#" )); do
         echo "    -j --jobs             Specify the number of build jobs"
         echo "Args:"
         echo "    clean                 Delete the build/ directory before build-step"
+        echo "    malign-double         Use the malign-double compiler flag to align double, long double,"
+        echo "                          and long long on double word boundaries"
         echo "    explicit-alignment    Use explicit alignment"
         echo "    help                  Print this help"
         echo ""
@@ -79,8 +86,8 @@ cmake -S iceoryx_meta \
       -B build/32/iceoryx \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=build/install/32 \
-      -DCMAKE_C_FLAGS="-m32" \
-      -DCMAKE_CXX_FLAGS="-m32"
+      -DCMAKE_C_FLAGS="-m32 ${MALIGN_DOUBLE_OPTION}" \
+      -DCMAKE_CXX_FLAGS="-m32 ${MALIGN_DOUBLE_OPTION}"
 cmake --build build/32/iceoryx --target install -- -j$NUM_JOBS
 
 echo -e "${COLOR_GREEN}# Building 64 bit mixed-mode-poc${COLOR_RESET}"
@@ -96,8 +103,8 @@ cmake -S iceoryx_examples/mixed_mode_poc \
       -B build/32/example \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_PREFIX_PATH=${WORKSPACE}/build/install/32 \
-      -DCMAKE_C_FLAGS="-m32" \
-      -DCMAKE_CXX_FLAGS="-m32" \
+      -DCMAKE_C_FLAGS="-m32 ${MALIGN_DOUBLE_OPTION}" \
+      -DCMAKE_CXX_FLAGS="-m32 ${MALIGN_DOUBLE_OPTION}" \
       -DUSE_EXPLICIT_ALIGNMENT=${EXPLICIT_ALIGNMENT_FLAG}
 cmake --build build/32/example
 
